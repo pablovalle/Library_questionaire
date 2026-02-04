@@ -3,65 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Library Evaluator</title>
+    <title>Library Evaluation Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .task-card { border: 1px solid #e2e8f0; background: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 12px; font-size: 0.85rem; }
-        .condition-tag { display: inline-block; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; margin: 2px; font-family: monospace; font-size: 0.75rem; }
-        ::-webkit-scrollbar { width: 6px; }
+        .task-card { border: 1px solid #e2e8f0; background: #ffffff; border-radius: 12px; padding: 16px; min-width: 300px; max-width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .condition-badge { font-size: 0.7rem; background: #f8fafc; color: #64748b; padding: 2px 6px; border: 1px solid #e2e8f0; border-radius: 4px; margin-right: 4px; margin-top: 4px; display: inline-block; font-family: monospace; }
+        .active-choice { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-slate-100 h-screen overflow-hidden">
+<body class="bg-slate-50 h-screen overflow-hidden flex flex-col">
 
-    <script>
-        const REPO_OWNER = 'YOUR_GITHUB_USERNAME';
-        const REPO_NAME = 'YOUR_REPO_NAME';
-        const FOLDER_PATH = 'libraries'; // Path to your folder in the repo
-    </script>
-
-    <div class="flex flex-col h-full">
-        <header class="bg-white border-b p-4 flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-4">
-                <h1 class="text-xl font-bold text-slate-800">Library Evaluator</h1>
-                <div class="w-64 bg-slate-200 h-2 rounded-full overflow-hidden">
-                    <div id="progress-bar" class="bg-blue-600 h-full transition-all" style="width: 0%"></div>
+    <header class="bg-white border-b px-6 py-4 flex items-center justify-between z-10 shadow-sm">
+        <div class="flex items-center gap-6">
+            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Library Questionnaire</h1>
+            <div class="flex items-center gap-3">
+                <div class="w-48 bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
                 </div>
-                <span id="progress-text" class="text-xs font-bold text-slate-500">Loading...</span>
+                <span id="progress-text" class="text-xs font-bold text-slate-500 uppercase">Loading Files...</span>
             </div>
-            <button onclick="exportResults()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold">Download Results</button>
-        </header>
+        </div>
+        <button onclick="exportJSON()" class="bg-slate-900 hover:bg-black text-white px-5 py-2 rounded-lg text-sm font-bold transition-all transform active:scale-95">
+            Download Results (.json)
+        </button>
+    </header>
 
-        <main class="flex flex-1 overflow-hidden">
+    <main class="flex flex-1 overflow-hidden">
+        
+        <section class="w-[380px] bg-white border-r flex flex-col shadow-xl">
+            <div class="p-6 border-b bg-slate-50/50">
+                <h2 id="lib-filename" class="text-blue-700 font-black text-lg truncate">---</h2>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Current Library Focus</p>
+            </div>
             
-            <section class="w-1/3 p-6 overflow-y-auto bg-white border-r">
-                <h2 id="current-lib-name" class="text-lg font-black text-blue-800 mb-1 truncate italic">---</h2>
-                <p class="text-xs text-slate-400 mb-6 uppercase tracking-widest font-bold">Library Level Assessment</p>
-                
-                <div id="form-container" class="space-y-6">
-                    </div>
-
-                <div class="mt-10 flex gap-2">
-                    <button onclick="prev()" class="flex-1 py-3 border rounded-xl font-bold text-slate-500 hover:bg-slate-50">Back</button>
-                    <button id="next-btn" onclick="next()" class="flex-[2] py-3 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700">Next Library</button>
+            <div id="form-container" class="flex-1 overflow-y-auto p-6 space-y-5">
                 </div>
-            </section>
 
-            <section id="task-preview" class="w-2/3 p-6 overflow-y-auto bg-slate-50">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-700 uppercase text-xs tracking-widest">Atomic Task Definitions</h3>
-                    <span id="task-count" class="text-xs bg-slate-200 px-2 py-1 rounded-md font-bold">0 Tasks</span>
+            <div class="p-6 border-t bg-slate-50 flex gap-3">
+                <button onclick="changeLibrary(-1)" class="flex-1 py-3 border border-slate-300 rounded-xl font-bold text-slate-600 hover:bg-white transition-all">Previous</button>
+                <button onclick="changeLibrary(1)" id="next-btn" class="flex-[2] py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md transition-all">Next Library</button>
+            </div>
+        </section>
+
+        <section class="flex-1 bg-slate-100 p-8 overflow-y-auto">
+            <div class="mb-4 flex items-center justify-between">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest">Atomic Task Cards</h3>
+                <span id="task-counter" class="text-[10px] bg-white px-2 py-1 rounded border font-bold text-slate-500">0 TASKS FOUND</span>
+            </div>
+            <div id="task-grid" class="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 </div>
-                <div id="task-cards-container">
-                    </div>
-            </section>
-        </main>
-    </div>
+        </section>
+
+    </main>
 
     <script>
+        // CONFIG: Detect Repo Info from URL
+        const pathParts = window.location.pathname.split('/');
+        const REPO_OWNER = 'pablovalle';
+        const REPO_NAME = 'Library_questionaire';
+        const FOLDER_PATH = 'libraries';
+
         let libraryFiles = [];
         let currentIndex = 0;
-        let results = JSON.parse(localStorage.getItem('gh_eval_results')) || {};
+        let evaluations = JSON.parse(localStorage.getItem('eval_data')) || {};
 
         const metrics = [
             { id: 1, label: "Q1: Validity", type: "number" },
@@ -75,61 +81,73 @@
 
         async function init() {
             try {
-                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`);
+                const apiURL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
+                const response = await fetch(apiURL);
                 const files = await response.json();
                 libraryFiles = files.filter(f => f.name.endsWith('.json'));
-                loadCurrent();
-            } catch (e) {
-                alert("Error connecting to GitHub. Check your config or API limits.");
+                loadLibrary();
+            } catch (err) {
+                console.error(err);
+                document.getElementById('progress-text').innerText = "Error Loading API";
             }
         }
 
-        async function loadCurrent() {
-            const fileInfo = libraryFiles[currentIndex];
-            const response = await fetch(fileInfo.download_url);
-            const data = await response.json();
+        async function loadLibrary() {
+            const file = libraryFiles[currentIndex];
+            const res = await fetch(file.download_url);
+            const data = await res.json();
             const tasks = data.atomic_library || [];
 
-            // Update Header & Left Title
-            document.getElementById('current-lib-name').innerText = fileInfo.name;
+            // Update UI Sidebar
+            document.getElementById('lib-filename').innerText = file.name;
             document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${libraryFiles.length}`;
             document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / libraryFiles.length) * 100}%`;
-
-            // Render Right: Atomic Task Cards
-            document.getElementById('task-count').innerText = `${tasks.length} Tasks`;
-            document.getElementById('task-cards-container').innerHTML = tasks.map(t => `
-                <div class="task-card shadow-sm border-l-4 border-l-blue-500">
-                    <div class="font-black text-blue-700 text-sm mb-1 capitalize">${t.id.replace(/_/g, ' ')}</div>
-                    <div class="text-slate-500 text-xs mb-3 italic">"${t.description}"</div>
-                    <div class="grid grid-cols-2 gap-4">
+            
+            // Render Task Cards on the right
+            document.getElementById('task-counter').innerText = `${tasks.length} ATOMIC TASKS`;
+            document.getElementById('task-grid').innerHTML = tasks.map(t => `
+                <div class="task-card border-t-4 border-t-blue-500">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-black text-blue-800 text-sm uppercase">${t.id}</span>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 leading-relaxed">${t.description}</p>
+                    <div class="space-y-3">
                         <div>
-                            <span class="text-[10px] font-bold text-slate-400 block mb-1 uppercase">Pre-conditions</span>
-                            ${t.pre_conditions.map(c => `<span class="condition-tag">${c}</span>`).join('')}
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter block">Pre-conditions:</span>
+                            ${t.pre_conditions.map(c => `<span class="condition-badge">${c}</span>`).join('')}
                         </div>
                         <div>
-                            <span class="text-[10px] font-bold text-slate-400 block mb-1 uppercase">Post-conditions</span>
-                            ${t.post_conditions.map(c => `<span class="condition-tag">${c}</span>`).join('')}
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter block">Post-conditions:</span>
+                            ${t.post_conditions.map(c => `<span class="condition-badge">${c}</span>`).join('')}
                         </div>
                     </div>
                 </div>
             `).join('');
 
-            // Render Left: Form
-            const saved = results[fileInfo.name] || {};
+            // Render Form on the left
+            renderForm(file.name);
+            document.getElementById('next-btn').innerText = currentIndex === libraryFiles.length - 1 ? "Finish & Export" : "Next Library";
+        }
+
+        function renderForm(fileName) {
+            const saved = evaluations[fileName] || {};
             document.getElementById('form-container').innerHTML = metrics.map(m => {
                 const val = saved[`Q${m.id}`] || '';
                 if (m.type === 'number') {
-                    return `<div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2">${m.label}</label>
-                        <input type="number" onchange="save('${fileInfo.name}', ${m.id}, this.value)" value="${val}" class="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                    return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <label class="block text-xs font-black text-slate-500 mb-2 uppercase">${m.label}</label>
+                        <input type="number" onchange="saveVal('${fileName}', ${m.id}, this.value)" value="${val}"
+                               class="w-full bg-white border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
                     </div>`;
                 } else {
-                    return `<div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2">${m.label}</label>
+                    return `
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <label class="block text-xs font-black text-slate-500 mb-2 uppercase">${m.label}</label>
                         <div class="flex gap-1">
                             ${['Yes', 'Partial', 'No'].map(opt => `
-                                <button onclick="save('${fileInfo.name}', ${m.id}, '${opt}'); selectBtn(this)" 
-                                        class="flex-1 py-2 text-xs border rounded-md transition-all ${val === opt ? 'bg-blue-600 text-white border-blue-600' : 'bg-white hover:bg-slate-50'}">
+                                <button onclick="saveVal('${fileName}', ${m.id}, '${opt}'); markActive(this)" 
+                                        class="choice-btn flex-1 py-2 text-[11px] font-bold border rounded-lg transition-all ${val === opt ? 'active-choice' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400'}">
                                     ${opt}
                                 </button>
                             `).join('')}
@@ -139,43 +157,34 @@
             }).join('');
         }
 
-        function save(file, qId, val) {
-            if (!results[file]) results[file] = {};
-            results[file][`Q${qId}`] = val;
-            localStorage.setItem('gh_eval_results', JSON.stringify(results));
+        function saveVal(fileName, qId, val) {
+            if (!evaluations[fileName]) evaluations[fileName] = {};
+            evaluations[fileName][`Q${qId}`] = val;
+            localStorage.setItem('eval_data', JSON.stringify(evaluations));
         }
 
-        function selectBtn(btn) {
-            const parent = btn.parentElement;
-            Array.from(parent.children).forEach(b => b.classList.replace('bg-blue-600', 'bg-white'), b.classList.replace('text-white', 'text-slate-700'));
-            btn.classList.add('bg-blue-600', 'text-white');
+        function markActive(btn) {
+            const siblings = btn.parentElement.querySelectorAll('.choice-btn');
+            siblings.forEach(s => s.classList.remove('active-choice'));
+            btn.classList.add('active-choice');
         }
 
-        function next() {
-            if (currentIndex < libraryFiles.length - 1) {
-                currentIndex++;
-                loadCurrent();
-                document.getElementById('task-preview').scrollTop = 0;
-            } else {
-                exportResults();
+        function changeLibrary(dir) {
+            const newIndex = currentIndex + dir;
+            if (newIndex >= 0 && newIndex < libraryFiles.length) {
+                currentIndex = newIndex;
+                loadLibrary();
+                document.querySelector('main section:last-child').scrollTop = 0;
+            } else if (newIndex >= libraryFiles.length) {
+                exportJSON();
             }
         }
 
-        function prev() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                loadCurrent();
-                document.getElementById('task-preview').scrollTop = 0;
-            }
-        }
-
-        function exportResults() {
-            const blob = new Blob([JSON.stringify(results, null, 2)], { type: "application/json" });
+        function exportJSON() {
+            const blob = new Blob([JSON.stringify(evaluations, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url;
-            a.download = `github_eval_results.json`;
-            a.click();
+            a.href = url; a.download = `evaluation_results.json`; a.click();
         }
 
         init();
