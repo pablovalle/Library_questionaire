@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Library Evaluation Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card { transition: all 0.2s ease; border: 1px solid #e5e7eb; }
+        .card:hover { transform: translateY(-4px); border-color: #3b82f6; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .condition-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #f3f4f6; color: #374151; margin-right: 4px; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-10">
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-12 text-center">
+            <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Task Library Validator</h1>
+            <p class="text-slate-600 mt-3 text-lg">Evaluate the generated atomic tasks for robot manipulation.</p>
+        </header>
+
+        <div id="task-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+        <div class="mt-16 sticky bottom-8 flex justify-center">
+            <button onclick="exportEvaluations()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full shadow-2xl flex items-center gap-2 transform active:scale-95 transition-all">
+                <span>Download Evaluation JSON</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Define your questions as per requirements
+        const metrics = [
+            { id: 1, label: "Q1: Ground Truth Validity", type: "number", hint: "Enter a specific number" },
+            { id: 2, label: "Q2: Task Coverage", type: "choice" },
+            { id: 3, label: "Q3: Task Atomicity", type: "choice" },
+            { id: 4, label: "Q4: Generalizability", type: "choice" },
+            { id: 5, label: "Q5: Task Redundancy", type: "number", hint: "Enter a specific number" },
+            { id: 6, label: "Q6: Task Causality", type: "choice" },
+            { id: 7, label: "Q7: Task Utility", type: "choice" }
+        ];
+
+        async function init() {
+            try {
+                const response = await fetch('libraries.json');
+                const data = await response.json();
+                const tasks = data.atomic_library; // Accessing the nested array
+                const grid = document.getElementById('task-grid');
+
+                tasks.forEach(task => {
+                    const card = document.createElement('div');
+                    card.className = "card bg-white rounded-2xl p-6 flex flex-col justify-between";
+                    
+                    // Task Metadata Section
+                    let metaHtml = `
+                        <div class="mb-6">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">ID: ${task.id}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-2 capitalize">${task.id.replace('_', ' ')}</h3>
+                            <p class="text-sm text-slate-500 mb-4">${task.description}</p>
+                            
+                            <div class="space-y-2">
+                                <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Pre-Conditions</div>
+                                <div class="flex flex-wrap gap-1">${task.pre_conditions.map(c => `<span class="condition-badge">${c}</span>`).join('')}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Question Forms
+                    let formsHtml = metrics.map(m => {
+                        if (m.type === "number") {
+                            return `
+                            <div class="mt-4">
+                                <label class="block text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase">${m.label}</label>
+                                <input type="number" data-task="${task.id}" data-qid="${m.id}" 
+                                    placeholder="${m.hint}"
+                                    class="eval-input w-full border border-slate-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>`;
+                        } else {
+                            return `
+                            <div class="mt-4">
+                                <label class="block text-xs font-bold text-slate-500 mb-1 tracking-wide uppercase">${m.label}</label>
+                                <select data-task="${task.id}" data-qid="${m.id}" 
+                                    class="eval-input w-full border border-slate-200 rounded-lg p-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Answer</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="Partial">Partial</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>`;
+                        }
+                    }).join('');
+
+                    card.innerHTML = metaHtml + `<div class="border-t pt-4 space-y-2">${formsHtml}</div>`;
+                    grid.appendChild(card);
+                });
+            } catch (err) {
+                document.getElementById('task-grid').innerHTML = `<div class="col-span-full text-center text-red-500 font-bold">Error: Make sure 'libraries.json' is in the same folder as this file.</div>`;
+            }
+        }
+
+        function exportEvaluations() {
+            const evaluationData = {};
+            const inputs = document.querySelectorAll('.eval-input');
+            
+            inputs.forEach(input => {
+                const taskId = input.dataset.task;
+                const qId = input.dataset.qid;
+                if (!evaluationData[taskId]) evaluationData[taskId] = {};
+                evaluationData[taskId][`Q${qId}`] = input.value;
+            });
+
+            const blob = new Blob([JSON.stringify(evaluationData, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `eval_results_${new Date().getTime()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        init();
+    </script>
+</body>
+</html>
