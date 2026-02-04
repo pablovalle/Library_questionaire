@@ -3,139 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Evaluation Suite</title>
+    <title>Step-by-Step Library Evaluator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .library-card { transition: all 0.2s ease; border: 1px solid #e2e8f0; }
-        .library-card:hover { border-color: #3b82f6; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .task-badge { font-size: 0.65rem; background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; border: 1px solid #e2e8f0; }
-    </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-20">
+<body class="bg-slate-50 min-h-screen flex flex-col items-center p-4 md:p-10">
 
-    <div class="max-w-6xl mx-auto p-6">
-        <header class="flex justify-between items-end mb-8 border-b pb-6">
-            <div>
-                <h1 class="text-3xl font-bold text-slate-900">Library Evaluation Suite</h1>
-                <p class="text-slate-500">Evaluating 150 library sets from <code class="bg-slate-200 px-1 rounded">/libraries/</code></p>
-            </div>
-            <div class="text-right">
-                <button onclick="exportAll()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow-md transition-all">
-                    Export All Results (.json)
-                </button>
-            </div>
-        </header>
-
-        <div class="mb-6">
-            <input type="text" id="search" placeholder="Search library filename..." 
-                   class="w-full p-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
+    <div class="max-w-3xl w-full">
+        <div id="upload-zone" class="bg-white p-10 rounded-3xl shadow-xl border-2 border-dashed border-blue-200 text-center">
+            <h1 class="text-3xl font-bold text-slate-800 mb-4">Library Evaluation Tool</h1>
+            <p class="text-slate-500 mb-8">Please select the <span class="font-mono bg-slate-100 px-2 py-1 rounded">/libraries</span> folder to begin.</p>
+            <input type="file" id="folder-input" webkitdirectory directory multiple 
+                   class="block w-full text-sm text-slate-500 file:mr-4 file:py-3 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
         </div>
 
-        <div id="loading" class="text-center py-20 text-slate-400">Loading libraries...</div>
-        
-        <div id="library-grid" class="grid grid-cols-1 gap-4">
+        <div id="eval-interface" class="hidden space-y-6">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                <div class="flex justify-between text-xs font-bold uppercase text-slate-400 mb-2">
+                    <span id="progress-text">Progress: 0/0</span>
+                    <span id="percent-text">0%</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-3">
+                    <div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
             </div>
+
+            <div id="current-card" class="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 min-h-[400px] flex flex-col">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 id="lib-name" class="text-2xl font-black text-slate-800 truncate pr-4 italic">Library Name</h2>
+                    <span id="lib-count" class="bg-slate-100 text-slate-600 text-xs px-3 py-1 rounded-full whitespace-nowrap">0 tasks</span>
+                </div>
+
+                <div id="task-list" class="flex flex-wrap gap-2 mb-8 border-b pb-6"></div>
+
+                <div id="questions" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                    </div>
+
+                <div class="flex justify-between mt-auto pt-6 border-t">
+                    <button onclick="prevLib()" class="px-6 py-2 text-slate-400 hover:text-slate-800 font-bold transition-colors">← Previous</button>
+                    <button id="next-btn" onclick="nextLib()" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-xl font-bold shadow-lg transition-all transform active:scale-95">Next Library</button>
+                </div>
+            </div>
+            
+            <button onclick="exportData()" class="w-full py-3 text-slate-400 text-sm hover:underline">Download Current Progress (.json)</button>
+        </div>
     </div>
 
     <script>
+        let libraries = [];
+        let currentIndex = 0;
+        let evaluations = JSON.parse(localStorage.getItem('lib_evals')) || {};
+
         const metrics = [
             { id: 1, label: "Q1: Validity", type: "number" },
+            { id: 5, label: "Q5: Redundancy", type: "number" },
             { id: 2, label: "Q2: Coverage", type: "choice" },
             { id: 3, label: "Q3: Atomicity", type: "choice" },
             { id: 4, label: "Q4: Generalizability", type: "choice" },
-            { id: 5, label: "Q5: Redundancy", type: "number" },
             { id: 6, label: "Q6: Causality", type: "choice" },
             { id: 7, label: "Q7: Utility", type: "choice" }
         ];
 
-        async function loadLibraries() {
-            try {
-                // 1. Fetch the list of filenames
-                const listResponse = await fetch('./libraries/filelist.json');
-                const filenames = await listResponse.json();
-                
-                const grid = document.getElementById('library-grid');
-                document.getElementById('loading').remove();
-
-                // 2. Fetch each file in the list
-                for (const name of filenames) {
-                    try {
-                        const res = await fetch(`./libraries/${name}`);
-                        const data = await res.json();
-                        renderCard(name, data);
-                    } catch (e) { console.error(`Could not load ${name}`); }
-                }
-            } catch (err) {
-                document.getElementById('loading').innerHTML = "Error: filelist.json not found in /libraries/";
+        document.getElementById('folder-input').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files).filter(f => f.name.endsWith('.json'));
+            
+            for (const file of files) {
+                const text = await file.text();
+                try {
+                    libraries.push({ name: file.name, content: JSON.parse(text) });
+                } catch(err) { console.error("Bad JSON:", file.name); }
             }
-        }
 
-        function renderCard(filename, data) {
-            const tasks = data.atomic_library || [];
-            const card = document.createElement('div');
-            card.className = "library-card bg-white p-5 rounded-xl flex flex-col md:flex-row gap-6 items-center";
-            card.dataset.filename = filename.toLowerCase();
+            if (libraries.length > 0) {
+                document.getElementById('upload-zone').classList.add('hidden');
+                document.getElementById('eval-interface').classList.remove('hidden');
+                renderCurrent();
+            }
+        });
 
-            const taskList = tasks.map(t => `<span class="task-badge">${t.id}</span>`).join(' ');
+        function renderCurrent() {
+            const lib = libraries[currentIndex];
+            const tasks = lib.content.atomic_library || [];
+            
+            document.getElementById('lib-name').innerText = lib.name;
+            document.getElementById('lib-count').innerText = `${tasks.length} Atomic Tasks`;
+            document.getElementById('task-list').innerHTML = tasks.map(t => `<span class="bg-blue-50 text-blue-700 text-[10px] px-2 py-1 rounded border border-blue-100 font-bold uppercase">${t.id}</span>`).join('');
 
-            let formHtml = metrics.map(m => {
+            const questionsContainer = document.getElementById('questions');
+            const saved = evaluations[lib.name] || {};
+
+            questionsContainer.innerHTML = metrics.map(m => {
+                const val = saved[`Q${m.id}`] || '';
                 if (m.type === 'number') {
-                    return `
-                    <div class="flex-1">
-                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">${m.label.split(':')[0]}</label>
-                        <input type="number" data-file="${filename}" data-qid="${m.id}" 
-                               class="eval-input w-full border rounded p-1.5 text-sm">
+                    return `<div>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">${m.label}</label>
+                        <input type="number" onchange="saveAnswer('${lib.name}', ${m.id}, this.value)" value="${val}" class="w-full border-2 border-slate-100 rounded-xl p-3 focus:border-blue-500 outline-none transition-all">
                     </div>`;
                 } else {
-                    return `
-                    <div class="flex-1">
-                        <label class="block text-[10px] uppercase font-bold text-slate-400 mb-1">${m.label.split(':')[0]}</label>
-                        <select data-file="${filename}" data-qid="${m.id}" class="eval-input w-full border rounded p-1.5 text-sm bg-white">
-                            <option value="">-</option>
-                            <option value="Yes">Yes</option>
-                            <option value="Partial">P</option>
-                            <option value="No">No</option>
+                    return `<div>
+                        <label class="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">${m.label}</label>
+                        <select onchange="saveAnswer('${lib.name}', ${m.id}, this.value)" class="w-full border-2 border-slate-100 rounded-xl p-3 bg-white focus:border-blue-500 outline-none transition-all">
+                            <option value="">Select...</option>
+                            <option value="Yes" ${val === 'Yes' ? 'selected' : ''}>Yes</option>
+                            <option value="Partial" ${val === 'Partial' ? 'selected' : ''}>Partial</option>
+                            <option value="No" ${val === 'No' ? 'selected' : ''}>No</option>
                         </select>
                     </div>`;
                 }
             }).join('');
 
-            card.innerHTML = `
-                <div class="md:w-1/4 w-full">
-                    <h3 class="font-bold text-slate-800 truncate">${filename}</h3>
-                    <div class="mt-2 flex flex-wrap gap-1">${taskList}</div>
-                </div>
-                <div class="md:w-3/4 w-full grid grid-cols-4 md:grid-cols-7 gap-3">
-                    ${formHtml}
-                </div>
-            `;
-            document.getElementById('library-grid').appendChild(card);
+            updateProgress();
+            document.getElementById('next-btn').innerText = currentIndex === libraries.length - 1 ? "Finish & Export" : "Next Library";
         }
 
-        // Search logic
-        document.getElementById('search').addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            document.querySelectorAll('.library-card').forEach(card => {
-                card.style.display = card.dataset.filename.includes(val) ? 'flex' : 'none';
-            });
-        });
+        function saveAnswer(libName, qId, value) {
+            if (!evaluations[libName]) evaluations[libName] = {};
+            evaluations[libName][`Q${qId}`] = value;
+            localStorage.setItem('lib_evals', JSON.stringify(evaluations));
+            updateProgress();
+        }
 
-        function exportAll() {
-            const results = {};
-            document.querySelectorAll('.eval-input').forEach(input => {
-                const f = input.dataset.file;
-                if (!results[f]) results[f] = {};
-                results[f][`Q${input.dataset.qid}`] = input.value;
-            });
+        function updateProgress() {
+            const completedCount = Object.keys(evaluations).length;
+            const total = libraries.length;
+            const percent = Math.round((completedCount / total) * 100) || 0;
             
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(results, null, 2));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", "eval_results.json");
-            dl.click();
+            document.getElementById('progress-text').innerText = `Progress: ${completedCount}/${total}`;
+            document.getElementById('percent-text').innerText = `${percent}%`;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
         }
 
-        loadLibraries();
+        function nextLib() {
+            if (currentIndex < libraries.length - 1) {
+                currentIndex++;
+                renderCurrent();
+            } else {
+                exportData();
+            }
+        }
+
+        function prevLib() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                renderCurrent();
+            }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(evaluations, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `evaluation_export.json`;
+            a.click();
+        }
     </script>
 </body>
 </html>
