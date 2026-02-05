@@ -1,0 +1,100 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "turn_on",
+            "description": "Actuate a device control (button, knob, switch) to set the device to the on state.",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[device_id] control is accessible",
+                "[device_id] is in state: off"
+            ],
+            "post_conditions": [
+                "[device_id] is in state: on",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not grasped",
+                "end_effector is empty",
+                "[obj_id] is accessible"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "place_relative",
+            "description": "Place a held object at a pose relative to a reference object using a specified spatial relation (e.g., right_of, left_of, in_front_of, behind).",
+            "parameters": [
+                "obj_id",
+                "ref_id",
+                "relation"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[ref_id] is localized and accessible",
+                "target region [relation] of [ref_id] is clear"
+            ],
+            "post_conditions": [
+                "[obj_id] is placed [relation] of [ref_id]",
+                "end_effector is empty"
+            ]
+        }
+    ]
+}

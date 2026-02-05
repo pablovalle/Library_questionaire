@@ -1,0 +1,63 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Open a container (cabinet, drawer, door, etc.) by actuating its handle or door mechanism.",
+            "parameters": [
+                "container_id"
+            ],
+            "preconditions": [
+                "end_effector is empty",
+                "container is closed and reachable"
+            ],
+            "postconditions": [
+                "container is open"
+            ]
+        },
+        {
+            "id": "pick",
+            "description": "Grasp and lift an object from its current location.",
+            "parameters": [
+                "object_id"
+            ],
+            "preconditions": [
+                "object is at rest, graspable, and reachable",
+                "end_effector is empty"
+            ],
+            "postconditions": [
+                "end_effector holds object"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Place the currently held object at a target location or inside a container.",
+            "parameters": [
+                "object_id",
+                "target_id"
+            ],
+            "preconditions": [
+                "end_effector holds object",
+                "target is reachable",
+                "if target is a container, it is open and has space"
+            ],
+            "postconditions": [
+                "object is located at target",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Close a previously opened container (cabinet, drawer, door, etc.).",
+            "parameters": [
+                "container_id"
+            ],
+            "preconditions": [
+                "end_effector is empty",
+                "container is open and reachable"
+            ],
+            "postconditions": [
+                "container is closed"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,144 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not grasped",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "turn_on",
+            "description": "Activate a power source or appliance (light, stove, microwave).",
+            "parameters": [
+                "appliance_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "appliance_id is in state: off"
+            ],
+            "post_conditions": [
+                "appliance_id is in state: on",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply force to move an object in a specified direction without grasping it.",
+            "parameters": [
+                "obj_id",
+                "direction"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "obj_id is stationary"
+            ],
+            "post_conditions": [
+                "obj_id is moved in [direction]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "retrieve",
+            "description": "Grasp and remove an object from a location (e.g., microwave).",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "obj_id is inside a container"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "obj_id is removed from container"
+            ]
+        },
+        {
+            "id": "stack",
+            "description": "Arrange objects in a vertical sequence based on size or shape.",
+            "parameters": [
+                "objs",
+                "order"
+            ],
+            "pre_conditions": [
+                "objs are held in end_effector",
+                "target location is clear"
+            ],
+            "post_conditions": [
+                "objs are arranged in [order]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "move",
+            "description": "Transport an object from one location to another without altering its orientation.",
+            "parameters": [
+                "obj_id",
+                "source_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is at [target_id]",
+                "end_effector is empty"
+            ]
+        }
+    ]
+}

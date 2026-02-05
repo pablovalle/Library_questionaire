@@ -1,0 +1,50 @@
+{
+    "atomic_library": [
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift a target object from its current support surface.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is reachable and not grasped"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object into or onto a target container or surface.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is accessible"
+            ],
+            "post_conditions": [
+                "end_effector is empty",
+                "[obj_id] is supported by [target_id]"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate an articulated mechanism (door, drawer, or lid) to its closed state.",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ]
+        }
+    ]
+}

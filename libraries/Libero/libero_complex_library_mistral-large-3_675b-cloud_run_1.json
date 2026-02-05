@@ -1,0 +1,97 @@
+{
+    "atomic_library": [
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not grasped",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "place_relative",
+            "description": "Position a held object relative to another object (e.g., to the left/right/front/back).",
+            "parameters": [
+                "obj_id",
+                "reference_id",
+                "relative_position"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[reference_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is positioned at [relative_position] of [reference_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "activate",
+            "description": "Turn on a device or appliance (e.g., stove, microwave).",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[device_id] is in state: off"
+            ],
+            "post_conditions": [
+                "[device_id] is in state: on",
+                "end_effector is empty"
+            ]
+        }
+    ]
+}

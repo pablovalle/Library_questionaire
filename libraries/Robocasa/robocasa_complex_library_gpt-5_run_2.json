@@ -1,0 +1,122 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (cabinet door, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is reachable",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (cabinet door, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is reachable",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is accessible",
+                "[obj_id] is at rest and not grasped",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object; optional orientation control.",
+            "parameters": [
+                "obj_id",
+                "target_id",
+                "pose"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is accessible",
+                "if [pose] specified: placement pose is feasible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id] at [pose] (or default orientation)",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "place_relative",
+            "description": "Place a held object at a specified spatial relation to a reference object/region (e.g., next_to, on_top_of).",
+            "parameters": [
+                "obj_id",
+                "reference_id",
+                "relation"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[reference_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is placed [relation] of [reference_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply lateral contact to move an object along a surface to a target region without grasping.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is not grasped",
+                "[obj_id] is on a support surface",
+                "[target_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is within [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "set_device_state",
+            "description": "Operate a control (button, switch, knob, faucet handle) to set a device to a desired state (e.g., on/off, flow/heat level).",
+            "parameters": [
+                "device_id",
+                "state"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[device_id] control is reachable",
+                "[device_id] is ready for state change (safety/constraints satisfied)"
+            ],
+            "post_conditions": [
+                "[device_id] is in state: [state]",
+                "end_effector is empty"
+            ]
+        }
+    ]
+}

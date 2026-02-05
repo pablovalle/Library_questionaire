@@ -1,0 +1,93 @@
+{
+    "atomic_library": [
+        {
+            "id": "pick_up",
+            "description": "Grasp and lift an object from its current support surface.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is reachable",
+                "[obj_id] is not fixed"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is in motion or lifted"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Position and release a held object onto a target surface or into a container, optionally specifying orientation.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is reachable"
+            ],
+            "post_conditions": [
+                "end_effector is empty",
+                "[obj_id] is supported by [target_id]"
+            ]
+        },
+        {
+            "id": "open",
+            "description": "Actuate a hinged or sliding joint to its open state.",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a hinged or sliding joint to its closed state.",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply force to an object to slide it along a surface without grasping.",
+            "parameters": [
+                "obj_id",
+                "target_area_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is on a surface"
+            ],
+            "post_conditions": [
+                "[obj_id] is located at [target_area_id]"
+            ]
+        },
+        {
+            "id": "toggle",
+            "description": "Change the operational state of a device or fixture (e.g., turn on/off water, microwave, or stove).",
+            "parameters": [
+                "device_id",
+                "state"
+            ],
+            "pre_conditions": [
+                "[device_id] is reachable"
+            ],
+            "post_conditions": [
+                "[device_id] is in state: [state]"
+            ]
+        }
+    ]
+}

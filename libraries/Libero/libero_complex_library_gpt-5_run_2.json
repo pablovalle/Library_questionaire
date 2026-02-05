@@ -1,0 +1,120 @@
+{
+    "atomic_library": [
+        {
+            "id": "navigate",
+            "description": "Move the mobile base to a specified location or waypoint.",
+            "parameters": [
+                "location_id"
+            ],
+            "pre_conditions": [
+                "base is not moving",
+                "path to [location_id] is collision-free"
+            ],
+            "post_conditions": [
+                "base is at [location_id]",
+                "base is stopped"
+            ]
+        },
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is reachable",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is reachable",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is reachable",
+                "[obj_id] is at rest and not grasped"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/container.",
+            "parameters": [
+                "obj_id",
+                "target_id",
+                "region_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is accessible",
+                "[region_id] within [target_id] is accessible and free"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by or contained in [target_id] (region: [region_id])",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "place_relative",
+            "description": "Release a held object at a pose specified relative to a reference object (e.g., to the right of).",
+            "parameters": [
+                "obj_id",
+                "reference_id",
+                "relation",
+                "offset"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[reference_id] is visible and accessible",
+                "target area at [relation] of [reference_id] with [offset] is free"
+            ],
+            "post_conditions": [
+                "[obj_id] is placed at [relation] of [reference_id] with [offset]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "set_device_state",
+            "description": "Manipulate a control (button, knob, switch) to set a device to a target state (e.g., power on).",
+            "parameters": [
+                "device_id",
+                "state"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[device_id] control interface is reachable"
+            ],
+            "post_conditions": [
+                "[device_id] is in state: [state]",
+                "end_effector is empty"
+            ]
+        }
+    ]
+}

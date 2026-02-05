@@ -125,7 +125,7 @@
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${BASE_PATH}/${folder}`);
             const files = await res.json();
             
-            libraryFiles = files.filter(f => f.name.startsWith('library') && f.name.endsWith('.json'));
+            libraryFiles = files.filter(f => f.name.includes('_library_') && f.name.endsWith('.json'));
             const simpleFile = files.find(f => f.name === 'simple.json');
             const complexFile = files.find(f => f.name === 'complex.json');
 

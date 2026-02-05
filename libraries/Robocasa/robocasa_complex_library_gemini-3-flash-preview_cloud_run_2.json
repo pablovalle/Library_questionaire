@@ -1,0 +1,92 @@
+{
+    "atomic_library": [
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object from its current support surface.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is reachable",
+                "[obj_id] is not fixed"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is not in contact with original support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Position and release a held object onto a target location, surface, or into a container.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is reachable"
+            ],
+            "post_conditions": [
+                "end_effector is empty",
+                "[obj_id] is supported by [target_id]"
+            ]
+        },
+        {
+            "id": "open",
+            "description": "Actuate a handle or interface to move a jointed or sliding mechanism (door, drawer, lid) to its open state.",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a handle or interface to move a jointed or sliding mechanism (door, drawer, lid) to its closed state.",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed"
+            ]
+        },
+        {
+            "id": "actuate_toggle",
+            "description": "Interact with a switch, button, or valve to change the operational state of a device (e.g., faucet, stove, microwave).",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "[device_id] is reachable"
+            ],
+            "post_conditions": [
+                "[device_id] operational state is changed"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply lateral force to an object to slide it across a surface to a new location without lifting.",
+            "parameters": [
+                "obj_id",
+                "target_area_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is reachable",
+                "path to [target_area_id] is clear"
+            ],
+            "post_conditions": [
+                "[obj_id] is at [target_area_id]"
+            ]
+        }
+    ]
+}

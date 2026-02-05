@@ -1,0 +1,100 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is accessible",
+                "[obj_id] is at rest and not grasped",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto, into, or adjacent to a target with a specified relative pose (e.g., on, in, next_to, upside_down).",
+            "parameters": [
+                "obj_id",
+                "target_id",
+                "relative_pose"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by or positioned relative to [target_id] per [relative_pose]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "push_to",
+            "description": "Apply non-prehensile contact to push/slide an object to a target support or container.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[obj_id] is accessible and movable",
+                "[target_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is within or on [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "set_device_state",
+            "description": "Manipulate a control to set a device or actuator to a desired state (e.g., faucet water on/off, burner on/off, microwave start/stop).",
+            "parameters": [
+                "device_id",
+                "state"
+            ],
+            "pre_conditions": [
+                "[device_id] is accessible",
+                "[device_id] supports state [state]",
+                "[device_id] is not already in state [state]"
+            ],
+            "post_conditions": [
+                "[device_id] is in state [state]"
+            ]
+        }
+    ]
+}

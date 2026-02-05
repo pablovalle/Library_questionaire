@@ -1,0 +1,107 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Open a container (cabinet, drawer, microwave door, etc.).",
+            "parameters": [
+                "container_id"
+            ],
+            "pre_conditions": [
+                "[container_id] is closed",
+                "[container_id] is accessible"
+            ],
+            "post_conditions": [
+                "[container_id] is open"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Close a container (cabinet, drawer, microwave door, etc.).",
+            "parameters": [
+                "container_id"
+            ],
+            "pre_conditions": [
+                "[container_id] is open",
+                "[container_id] is accessible"
+            ],
+            "post_conditions": [
+                "[container_id] is closed"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Grasp and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not held",
+                "end_effector is free",
+                "[obj_id] is reachable"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Place an object on or in a target location or object.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "[target_id] is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id]",
+                "end_effector is free"
+            ]
+        },
+        {
+            "id": "turn_on",
+            "description": "Turn on a device (e.g., stove burner, faucet, microwave).",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "[device_id] is off",
+                "[device_id] is accessible"
+            ],
+            "post_conditions": [
+                "[device_id] is on"
+            ]
+        },
+        {
+            "id": "turn_off",
+            "description": "Turn off a device.",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "[device_id] is on",
+                "[device_id] is accessible"
+            ],
+            "post_conditions": [
+                "[device_id] is off"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Push an object along a surface to a destination without grasping.",
+            "parameters": [
+                "obj_id",
+                "destination_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is on a surface and not obstructed",
+                "path to [destination_id] is clear"
+            ],
+            "post_conditions": [
+                "[obj_id] is at [destination_id]"
+            ]
+        }
+    ]
+}

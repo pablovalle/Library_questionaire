@@ -1,0 +1,143 @@
+{
+    "atomic_library": [
+        {
+            "id": "pick",
+            "description": "Pick an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "gripper is empty",
+                "[obj_id] is not being held",
+                "[obj_id] is reachable",
+                "hand is empty"
+            ],
+            "post_conditions": [
+                "hand is holding [obj_id]",
+                "[obj_id] is not at its original position",
+                "gripper is not empty",
+                "[obj_id] is held by gripper"
+            ]
+        },
+        {
+            "id": "place_on",
+            "description": "Place an object on a surface or inside a location (non-container).",
+            "parameters": [
+                "obj_id",
+                "location_id"
+            ],
+            "pre_conditions": [
+                "hand is holding [obj_id]",
+                "location [location_id] is clear and placeable"
+            ],
+            "post_conditions": [
+                "hand is empty",
+                "[obj_id] is at location [location_id]"
+            ]
+        },
+        {
+            "id": "place_in",
+            "description": "Place an object into a container or on a surface that serves as a container.",
+            "parameters": [
+                "obj_id",
+                "container_id"
+            ],
+            "pre_conditions": [
+                "hand is holding [obj_id]",
+                "[container_id] is open and accessible",
+                "hand is not empty",
+                "[container_id] has capacity"
+            ],
+            "post_conditions": [
+                "hand is empty",
+                "[obj_id] is placed at or in [container_id]"
+            ]
+        },
+        {
+            "id": "open",
+            "description": "Open a container, such as a cabinet, drawer, or microwave.",
+            "parameters": [
+                "container_id"
+            ],
+            "pre_conditions": [
+                "gripper is empty or hand is free",
+                "container [container_id] is closed"
+            ],
+            "post_conditions": [
+                "container [container_id] is open"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Close a container.",
+            "parameters": [
+                "container_id"
+            ],
+            "pre_conditions": [
+                "container [container_id] is open"
+            ],
+            "post_conditions": [
+                "container [container_id] is closed"
+            ]
+        },
+        {
+            "id": "turn_on",
+            "description": "Turn on a device such as a burner, microwave, or water tap.",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "device [device_id] is accessible",
+                "device [device_id] is off"
+            ],
+            "post_conditions": [
+                "device [device_id] is on"
+            ]
+        },
+        {
+            "id": "turn_off",
+            "description": "Turn off a device such as a burner or microwave.",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "device [device_id] is on",
+                "device [device_id] is accessible"
+            ],
+            "post_conditions": [
+                "device [device_id] is off"
+            ]
+        },
+        {
+            "id": "release",
+            "description": "Release an object from the gripper without placing it at a specific location, e.g., for stacking or releasing onto a surface without a specific target location.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "hand is holding [obj_id]"
+            ],
+            "post_conditions": [
+                "hand is empty",
+                "[obj_id] is at the release location"
+            ]
+        },
+        {
+            "id": "stack",
+            "description": "Place an object on top of another object (stacking).",
+            "parameters": [
+                "obj_id",
+                "base_object_id"
+            ],
+            "pre_conditions": [
+                "hand is holding [obj_id]",
+                "[base_object_id] is stable and can support [obj_id]"
+            ],
+            "post_conditions": [
+                "[obj_id] is on top of [base_object_id]",
+                "hand is empty",
+                "stacked objects are aligned"
+            ]
+        }
+    ]
+}

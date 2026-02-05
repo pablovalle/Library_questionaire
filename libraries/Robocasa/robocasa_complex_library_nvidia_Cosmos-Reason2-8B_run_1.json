@@ -1,0 +1,127 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "end_effector is empty",
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not grasped",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "end_effector holds [obj_id]",
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "turn_on",
+            "description": "Activate a switch or button to turn on a device (light, appliance).",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "device_id is off",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "device_id is on",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply force to move an object horizontally without lifting it significantly.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "obj_id is stationary",
+                "end_effector is empty"
+            ],
+            "post_conditions": [
+                "obj_id is moved to new location",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "stack",
+            "description": "Arrange objects in a vertical sequence, typically by placing one on top of another.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is positioned above [target_id]",
+                "end_effector is empty"
+            ]
+        },
+        {
+            "id": "move",
+            "description": "Transport an object from one location to another without necessarily lifting it off the surface.",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "end_effector holds [obj_id]",
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is at [target_id]",
+                "end_effector is empty"
+            ]
+        }
+    ]
+}
