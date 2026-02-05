@@ -3,79 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Library Evaluation Pro</title>
+    <title>Multi-Benchmark Eval Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .task-card { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .task-card { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .pre-tag { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .post-tag { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .param-tag { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
-        .active-choice { background-color: #2563eb !important; color: white !important; border-color: #1e40af !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .active-choice { background-color: #2563eb !important; color: white !important; border-color: #1e40af !important; }
         .num-input { font-size: 1.25rem; font-weight: 700; text-align: center; }
+        
+        /* Modal Style */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; width: 60%; max-height: 80vh; overflow-y: auto; }
         
         .tooltip-container { position: relative; display: inline-flex; align-items: center; }
         .tooltip-text {
-            visibility: hidden;
-            width: 280px;
-            background-color: #0f172a;
-            color: #fff;
-            text-align: left;
-            border-radius: 8px;
-            padding: 12px;
-            position: absolute;
-            z-index: 1000;
-            bottom: 150%;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.2s;
-            font-size: 0.8rem;
-            line-height: 1.4;
-            pointer-events: none;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
-            border: 1px solid #334155;
-        }
-        .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #0f172a transparent transparent transparent;
+            visibility: hidden; width: 280px; background-color: #0f172a; color: #fff; text-align: left; border-radius: 8px; padding: 12px;
+            position: absolute; z-index: 1000; bottom: 150%; left: 50%; transform: translateX(-50%);
+            opacity: 0; transition: opacity 0.2s; font-size: 0.8rem; pointer-events: none; border: 1px solid #334155;
         }
         .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body class="bg-slate-100 h-screen flex flex-col overflow-hidden font-sans text-slate-900">
 
+    <div id="benchmark-hub" class="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center p-10">
+        <h1 class="text-4xl font-black text-white mb-2 uppercase tracking-tighter italic">Evaluation Hub</h1>
+        <p class="text-slate-400 mb-10 font-bold">Select a benchmark folder to begin evaluation</p>
+        <div class="grid grid-cols-3 gap-8 w-full max-w-5xl">
+            <button onclick="startBenchmark('benchmark_1')" class="bg-white p-10 rounded-3xl hover:bg-blue-600 hover:text-white transition-all transform hover:-translate-y-2 group shadow-2xl">
+                <span class="block text-4xl mb-4">📂</span>
+                <span class="text-xl font-black group-hover:text-white">BENCHMARK 1</span>
+                <span class="block text-sm opacity-60 mt-2">Folder: libraries/benchmark_1</span>
+            </button>
+            <button onclick="startBenchmark('benchmark_2')" class="bg-white p-10 rounded-3xl hover:bg-emerald-600 hover:text-white transition-all transform hover:-translate-y-2 group shadow-2xl">
+                <span class="block text-4xl mb-4">📂</span>
+                <span class="text-xl font-black group-hover:text-white">BENCHMARK 2</span>
+                <span class="block text-sm opacity-60 mt-2">Folder: libraries/benchmark_2</span>
+            </button>
+            <button onclick="startBenchmark('benchmark_3')" class="bg-white p-10 rounded-3xl hover:bg-amber-600 hover:text-white transition-all transform hover:-translate-y-2 group shadow-2xl">
+                <span class="block text-4xl mb-4">📂</span>
+                <span class="text-xl font-black group-hover:text-white">BENCHMARK 3</span>
+                <span class="block text-sm opacity-60 mt-2">Folder: libraries/benchmark_3</span>
+            </button>
+        </div>
+    </div>
+
     <header class="bg-white border-b px-8 py-4 flex items-center justify-between shadow-md z-20">
-        <div class="flex items-center gap-10">
-            <h1 class="text-2xl font-black tracking-tighter italic border-r-2 pr-6 border-slate-200 uppercase">Eval Dashboard</h1>
+        <div class="flex items-center gap-6">
+            <button onclick="showHub()" class="bg-slate-100 p-2 rounded-lg hover:bg-slate-200 transition-all font-black text-xs uppercase">↩ Hub</button>
             <div class="flex flex-col">
-                <span id="lib-filename" class="text-blue-600 font-extrabold text-lg truncate max-w-xs">Loading...</span>
+                <span id="lib-filename" class="text-blue-600 font-extrabold text-lg truncate max-w-[200px]">Loading...</span>
                 <div class="flex items-center gap-3">
-                    <div class="w-48 bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                        <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
+                    <div class="w-32 bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-blue-600 h-full transition-all" style="width: 0%"></div>
                     </div>
-                    <span id="progress-text" class="text-xs font-black text-slate-400 uppercase">0 / 0</span>
+                    <span id="progress-text" class="text-[10px] font-black text-slate-400">0 / 0</span>
                 </div>
             </div>
         </div>
-        <button onclick="exportJSON()" class="text-sm font-black bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all shadow-lg active:scale-95">EXPORT RESULTS</button>
+
+        <div class="flex gap-4">
+            <button onclick="openDataModal('simple')" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-slate-700">SIMPLE.JSON</button>
+            <button onclick="openDataModal('complex')" class="bg-blue-800 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-700">COMPLEX.JSON</button>
+        </div>
+
+        <button onclick="exportJSON()" class="text-sm font-black bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-all shadow-lg">DOWNLOAD RESULTS</button>
     </header>
 
     <main id="task-container" class="flex-1 overflow-y-auto p-8 scroll-smooth">
         <div id="task-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </main>
 
+    <div id="data-modal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 id="modal-title" class="text-2xl font-black mb-6 uppercase border-b-4 border-slate-100 pb-2">Data Viewer</h2>
+            <div id="modal-body" class="space-y-3 font-medium text-slate-700 italic"></div>
+        </div>
+    </div>
+
     <footer class="bg-white border-t p-6 shadow-[0_-10px_25px_rgba(0,0,0,0.1)] z-30">
         <div class="max-w-[1800px] mx-auto flex items-stretch gap-6">
             <div id="questions-row" class="flex-1 grid grid-cols-7 gap-4"></div>
             <div class="flex flex-col gap-2 justify-center border-l pl-6 border-slate-200">
-                <button id="next-btn" onclick="changeLibrary(1)" class="w-40 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl transform active:scale-95">NEXT</button>
-                <button onclick="changeLibrary(-1)" class="w-40 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs">PREVIOUS</button>
+                <button id="next-btn" onclick="changeLibrary(1)" class="w-40 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl">NEXT</button>
+                <button onclick="changeLibrary(-1)" class="w-40 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs uppercase tracking-widest">Previous</button>
             </div>
         </div>
     </footer>
@@ -83,11 +96,15 @@
     <script>
         const REPO_OWNER = 'pablovalle';
         const REPO_NAME = 'Library_questionaire';
-        const FOLDER_PATH = 'libraries';
+        const BASE_PATH = 'libraries';
 
+        let currentBenchmark = '';
         let libraryFiles = [];
         let currentIndex = 0;
         let evaluations = JSON.parse(localStorage.getItem('eval_data')) || {};
+
+        const complexData = ["Put both the alphabet soup and the tomato sauce in the basket","Put both the cream cheese box and the butter in the basket","Turn on the stove and put the moka pot on it","Put the black bowl in the bottom drawer of the cabinet and close it","Put the white mug on the left plate and put the yellow and white mug on the right plate","Pick up the book and place it in the back compartment of the caddy","Put the white mug on the plate and put the chocolate pudding to the right of the plate","Put both the alphabet soup and the cream cheese box in the basket","Put both moka pots on the stove","Put the yellow and white mug in the microwave and close it"];
+        const simpleData = ["Pick up alphabet soup", "Open basket", "Place tomato sauce", "Turn on stove", "Close microwave", "Open cabinet", "Pick up moka pot", "Place cream cheese", "Open drawer", "Close drawer"];
 
         const metrics = [
             { id: 1, label: "Q1: Validity", type: "number", desc: "How many tasks are from the atomic task library in the ground truth?" },
@@ -99,13 +116,18 @@
             { id: 7, label: "Q7: Utility", type: "choice", desc: "Is the task parameterization accurate enough for a low-level controller?" }
         ];
 
-        async function init() {
+        function showHub() { document.getElementById('benchmark-hub').style.display = 'flex'; }
+        
+        async function startBenchmark(folderName) {
+            currentBenchmark = folderName;
+            document.getElementById('benchmark-hub').style.display = 'none';
             try {
-                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`);
+                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${BASE_PATH}/${folderName}`);
                 const files = await res.json();
                 libraryFiles = files.filter(f => f.name.endsWith('.json'));
+                currentIndex = 0;
                 loadLibrary();
-            } catch (err) { console.error(err); }
+            } catch (err) { alert("Error loading folder: " + folderName); showHub(); }
         }
 
         async function loadLibrary() {
@@ -115,7 +137,7 @@
             const tasks = data.atomic_library || [];
             const taskCount = tasks.length;
 
-            document.getElementById('lib-filename').innerText = file.name;
+            document.getElementById('lib-filename').innerText = `[${currentBenchmark}] ${file.name}`;
             document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${libraryFiles.length}`;
             document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / libraryFiles.length) * 100}%`;
 
@@ -126,63 +148,37 @@
                     <div class="text-xl font-black text-blue-800 uppercase border-b-2 border-blue-50 pb-2">${t.id}</div>
                     <p class="text-md text-slate-600 italic mb-2 leading-relaxed">"${t.description}"</p>
                     <div class="flex-1 space-y-4">
-                        <div>
-                            <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider mb-1">Parameters</span>
-                            <div class="flex flex-wrap">${params.length > 0 ? params.map(p => `<span class="param-tag">${p}</span>`).join('') : '<span class="text-xs text-slate-300 italic">None</span>'}</div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider mb-1">Pre-conditions</span>
-                            <div class="flex flex-wrap">${t.pre_conditions.map(c => `<span class="pre-tag">${c}</span>`).join('')}</div>
-                        </div>
-                        <div>
-                            <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider mb-1">Post-conditions</span>
-                            <div class="flex flex-wrap">${t.post_conditions.map(c => `<span class="post-tag">${c}</span>`).join('')}</div>
-                        </div>
+                        <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Parameters</span><div class="flex flex-wrap">${params.length > 0 ? params.map(p => `<span class="param-tag">${p}</span>`).join('') : '<span class="text-xs text-slate-300">None</span>'}</div></div>
+                        <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Pre-conditions</span><div class="flex flex-wrap">${t.pre_conditions.map(c => `<span class="pre-tag">${c}</span>`).join('')}</div></div>
+                        <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Post-conditions</span><div class="flex flex-wrap">${t.post_conditions.map(c => `<span class="post-tag">${c}</span>`).join('')}</div></div>
                     </div>
                 </div>`;
             }).join('');
 
-            const saved = evaluations[file.name] || {};
+            const saved = (evaluations[currentBenchmark] || {})[file.name] || {};
             document.getElementById('questions-row').innerHTML = metrics.map(m => {
                 const val = saved[`Q${m.id}`] || '';
-                const headerHtml = `
-                    <div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2 relative">
-                        <label class="text-[12px] font-black text-slate-700 uppercase tracking-widest">${m.label}</label>
-                        <div class="tooltip-container">
-                            <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                            <span class="tooltip-text">${m.desc}</span>
-                        </div>
-                    </div>`;
+                const headerHtml = `<div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2">
+                    <label class="text-[12px] font-black text-slate-700 uppercase tracking-widest">${m.label}</label>
+                    <div class="tooltip-container">
+                        <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <span class="tooltip-text">${m.desc}</span>
+                    </div>
+                </div>`;
 
                 if (m.type === 'number') {
-                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">
-                        ${headerHtml}
-                        <div class="p-3 flex items-center gap-2">
-                            <input type="number" min="0" max="${taskCount}" onchange="saveVal('${file.name}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none focus:border-blue-500">
-                            <span class="text-sm font-black text-slate-400">/ ${taskCount}</span>
-                        </div>
-                    </div>`;
+                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${headerHtml}<div class="p-3 flex items-center gap-2"><input type="number" onchange="saveVal('${file.name}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none"><span class="text-xs font-black text-slate-400">/ ${taskCount}</span></div></div>`;
                 } else {
-                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">
-                        ${headerHtml}
-                        <div class="p-3 flex flex-col gap-1.5">
-                            ${['Yes', 'Partial', 'No'].map(opt => `
-                                <button onclick="saveVal('${file.name}', ${m.id}, '${opt}'); markActive(this)" 
-                                        class="choice-btn w-full py-2 text-xs font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 shadow-sm'} uppercase">
-                                    ${opt}
-                                </button>
-                            `).join('')}
-                        </div>
-                    </div>`;
+                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${headerHtml}<div class="p-3 flex flex-col gap-1.5">${['Yes', 'Partial', 'No'].map(opt => `<button onclick="saveVal('${file.name}', ${m.id}, '${opt}'); markActive(this)" class="choice-btn w-full py-2 text-xs font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white border-slate-200 shadow-sm'}">${opt.toUpperCase()}</button>`).join('')}</div></div>`;
                 }
             }).join('');
-            
             document.getElementById('next-btn').innerText = currentIndex === libraryFiles.length - 1 ? "FINISH" : "NEXT";
         }
 
         function saveVal(fileName, qId, val) {
-            if (!evaluations[fileName]) evaluations[fileName] = {};
-            evaluations[fileName][`Q${qId}`] = val;
+            if (!evaluations[currentBenchmark]) evaluations[currentBenchmark] = {};
+            if (!evaluations[currentBenchmark][fileName]) evaluations[currentBenchmark][fileName] = {};
+            evaluations[currentBenchmark][fileName][`Q${qId}`] = val;
             localStorage.setItem('eval_data', JSON.stringify(evaluations));
         }
 
@@ -193,20 +189,26 @@
         }
 
         function changeLibrary(dir) {
-            const newIndex = currentIndex + dir;
-            if (newIndex >= 0 && newIndex < libraryFiles.length) {
-                currentIndex = newIndex; loadLibrary();
+            const nextIdx = currentIndex + dir;
+            if (nextIdx >= 0 && nextIdx < libraryFiles.length) {
+                currentIndex = nextIdx; loadLibrary();
                 document.getElementById('task-container').scrollTop = 0;
-            } else if (newIndex >= libraryFiles.length) { exportJSON(); }
+            } else if (nextIdx >= libraryFiles.length) { showHub(); }
         }
+
+        function openDataModal(type) {
+            const data = type === 'complex' ? complexData : simpleData;
+            document.getElementById('modal-title').innerText = `${type.toUpperCase()} DATA DESCRIPTION`;
+            document.getElementById('modal-body').innerHTML = data.map((line, i) => `<div class="p-3 bg-slate-50 rounded-lg"><span class="font-black text-blue-500 mr-2">${i+1}.</span> ${line}</div>`).join('');
+            document.getElementById('data-modal').style.display = 'block';
+        }
+        function closeModal() { document.getElementById('data-modal').style.display = 'none'; }
 
         function exportJSON() {
             const blob = new Blob([JSON.stringify(evaluations, null, 2)], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `eval_results.json`; a.click();
+            const a = document.createElement('a'); a.href = url; a.download = `evaluation_results.json`; a.click();
         }
-
-        init();
     </script>
 </body>
 </html>
