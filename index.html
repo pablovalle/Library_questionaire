@@ -7,31 +7,30 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .task-card { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .pre-tag { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 0.85rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 500; }
-        .post-tag { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.85rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 500; }
+        .pre-tag { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
+        .post-tag { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
+        .param-tag { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .active-choice { background-color: #2563eb !important; color: white !important; border-color: #1e40af !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
         .num-input { font-size: 1.25rem; font-weight: 700; text-align: center; }
         
-        /* TOOLTIP FIX: Using absolute positioning to escape the container */
         .tooltip-container { position: relative; display: inline-flex; align-items: center; }
         .tooltip-text {
             visibility: hidden;
-            width: 260px;
+            width: 280px;
             background-color: #0f172a;
             color: #fff;
             text-align: left;
             border-radius: 8px;
             padding: 12px;
             position: absolute;
-            z-index: 1000; /* Extremely high to stay on top */
-            bottom: 140%; /* Position above the title */
+            z-index: 1000;
+            bottom: 150%;
             left: 50%;
             transform: translateX(-50%);
             opacity: 0;
             transition: opacity 0.2s;
-            font-size: 0.75rem;
-            font-weight: 500;
-            line-height: 1.5;
+            font-size: 0.8rem;
+            line-height: 1.4;
             pointer-events: none;
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
             border: 1px solid #334155;
@@ -49,18 +48,18 @@
         .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
 </head>
-<body class="bg-slate-100 h-screen flex flex-col overflow-hidden font-sans">
+<body class="bg-slate-100 h-screen flex flex-col overflow-hidden font-sans text-slate-900">
 
     <header class="bg-white border-b px-8 py-4 flex items-center justify-between shadow-md z-20">
         <div class="flex items-center gap-10">
-            <h1 class="text-2xl font-black text-slate-900 tracking-tighter italic border-r-2 pr-6 border-slate-200">EVAL_PRO</h1>
+            <h1 class="text-2xl font-black tracking-tighter italic border-r-2 pr-6 border-slate-200 uppercase">Eval Dashboard</h1>
             <div class="flex flex-col">
-                <span id="lib-filename" class="text-blue-600 font-extrabold text-lg">Loading...</span>
+                <span id="lib-filename" class="text-blue-600 font-extrabold text-lg truncate max-w-xs">Loading...</span>
                 <div class="flex items-center gap-3">
                     <div class="w-48 bg-slate-200 h-2.5 rounded-full overflow-hidden">
                         <div id="progress-bar" class="bg-blue-600 h-full transition-all duration-500" style="width: 0%"></div>
                     </div>
-                    <span id="progress-text" class="text-xs font-black text-slate-400 uppercase tracking-widest">0 / 0</span>
+                    <span id="progress-text" class="text-xs font-black text-slate-400 uppercase">0 / 0</span>
                 </div>
             </div>
         </div>
@@ -71,12 +70,12 @@
         <div id="task-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
     </main>
 
-    <footer class="bg-white border-t p-6 shadow-2xl z-20">
+    <footer class="bg-white border-t p-6 shadow-[0_-10px_25px_rgba(0,0,0,0.1)] z-30">
         <div class="max-w-[1800px] mx-auto flex items-stretch gap-6">
             <div id="questions-row" class="flex-1 grid grid-cols-7 gap-4"></div>
             <div class="flex flex-col gap-2 justify-center border-l pl-6 border-slate-200">
                 <button id="next-btn" onclick="changeLibrary(1)" class="w-40 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl transform active:scale-95">NEXT</button>
-                <button onclick="changeLibrary(-1)" class="w-40 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs">Previous</button>
+                <button onclick="changeLibrary(-1)" class="w-40 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs">PREVIOUS</button>
             </div>
         </div>
     </footer>
@@ -95,7 +94,7 @@
             { id: 2, label: "Q2: Coverage", type: "choice", desc: "Are the generated tasks enough to compose the complex tasks?" },
             { id: 3, label: "Q3: Atomicity", type: "choice", desc: "Are the generated tasks atomic tasks?" },
             { id: 4, label: "Q4: General", type: "choice", desc: "Are all the provided tasks generic and do not rely on specific objects?" },
-            { id: 5, label: "Q5: Redundancy", type: "number", desc: "Out of the tasks provided, how many pairs of repeated tasks are there?" },
+            { id: 5, label: "Q5: Redundancy", type: "number", desc: "Out of the tasks provided, how many tasks are repeated or equivalent?" },
             { id: 6, label: "Q6: Causality", type: "choice", desc: "Are the given preconditions and post-conditions meaningful and respect the laws of physics?" },
             { id: 7, label: "Q7: Utility", type: "choice", desc: "Is the task parameterization accurate enough for a low-level controller?" }
         ];
@@ -120,22 +119,34 @@
             document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${libraryFiles.length}`;
             document.getElementById('progress-bar').style.width = `${((currentIndex + 1) / libraryFiles.length) * 100}%`;
 
-            document.getElementById('task-grid').innerHTML = tasks.map(t => `
+            document.getElementById('task-grid').innerHTML = tasks.map(t => {
+                const params = t.parameters || t.params || [];
+                return `
                 <div class="task-card">
                     <div class="text-xl font-black text-blue-800 uppercase border-b-2 border-blue-50 pb-2">${t.id}</div>
-                    <p class="text-md text-slate-600 italic mb-2 leading-relaxed font-medium">"${t.description}"</p>
+                    <p class="text-md text-slate-600 italic mb-2 leading-relaxed">"${t.description}"</p>
                     <div class="flex-1 space-y-4">
-                        <div><span class="text-[11px] font-black text-slate-400 block uppercase tracking-wider mb-2">Pre-conditions</span><div class="flex flex-wrap">${t.pre_conditions.map(c => `<span class="pre-tag">${c}</span>`).join('')}</div></div>
-                        <div><span class="text-[11px] font-black text-slate-400 block uppercase tracking-wider mb-2">Post-conditions</span><div class="flex flex-wrap">${t.post_conditions.map(c => `<span class="post-tag">${c}</span>`).join('')}</div></div>
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider mb-1">Parameters</span>
+                            <div class="flex flex-wrap">${params.length > 0 ? params.map(p => `<span class="param-tag">${p}</span>`).join('') : '<span class="text-xs text-slate-300 italic">None</span>'}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider mb-1">Pre-conditions</span>
+                            <div class="flex flex-wrap">${t.pre_conditions.map(c => `<span class="pre-tag">${c}</span>`).join('')}</div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 block uppercase tracking-wider mb-1">Post-conditions</span>
+                            <div class="flex flex-wrap">${t.post_conditions.map(c => `<span class="post-tag">${c}</span>`).join('')}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
 
             const saved = evaluations[file.name] || {};
             document.getElementById('questions-row').innerHTML = metrics.map(m => {
                 const val = saved[`Q${m.id}`] || '';
                 const headerHtml = `
-                    <div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2">
+                    <div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2 relative">
                         <label class="text-[12px] font-black text-slate-700 uppercase tracking-widest">${m.label}</label>
                         <div class="tooltip-container">
                             <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
@@ -147,7 +158,7 @@
                     return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">
                         ${headerHtml}
                         <div class="p-3 flex items-center gap-2">
-                            <input type="number" min="0" max="${taskCount}" onchange="saveVal('${file.name}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none">
+                            <input type="number" min="0" max="${taskCount}" onchange="saveVal('${file.name}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none focus:border-blue-500">
                             <span class="text-sm font-black text-slate-400">/ ${taskCount}</span>
                         </div>
                     </div>`;
@@ -157,14 +168,15 @@
                         <div class="p-3 flex flex-col gap-1.5">
                             ${['Yes', 'Partial', 'No'].map(opt => `
                                 <button onclick="saveVal('${file.name}', ${m.id}, '${opt}'); markActive(this)" 
-                                        class="choice-btn w-full py-2.5 text-xs font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 shadow-sm'}">
-                                    ${opt.toUpperCase()}
+                                        class="choice-btn w-full py-2 text-xs font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white text-slate-600 border-slate-200 hover:border-blue-400 shadow-sm'} uppercase">
+                                    ${opt}
                                 </button>
                             `).join('')}
                         </div>
                     </div>`;
                 }
             }).join('');
+            
             document.getElementById('next-btn').innerText = currentIndex === libraryFiles.length - 1 ? "FINISH" : "NEXT";
         }
 
