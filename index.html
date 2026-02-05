@@ -54,8 +54,8 @@
         </div>
 
         <div class="flex gap-4">
-            <button onclick="openDataModal('simple')" class="bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-black hover:bg-slate-700 uppercase tracking-tight">Show Simple Tasks</button>
-            <button onclick="openDataModal('complex')" class="bg-blue-800 text-white px-5 py-2.5 rounded-xl text-xs font-black hover:bg-blue-700 uppercase tracking-tight">Show Complex Tasks</button>
+            <button onclick="openDataModal('simple')" class="bg-slate-800 text-white px-6 py-3 rounded-xl text-s font-black hover:bg-slate-700 uppercase tracking-tight">Show Simple Tasks</button>
+            <button onclick="openDataModal('complex')" class="bg-blue-800 text-white px-6 py-3 rounded-xl text-s font-black hover:bg-blue-700 uppercase tracking-tight">Show Complex Tasks</button>
         </div>
 
         <button onclick="exportJSON()" class="text-sm font-black bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-emerald-600 transition-all shadow-lg uppercase">Export Final Results</button>
@@ -125,7 +125,7 @@
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${BASE_PATH}/${folder}`);
             const files = await res.json();
             
-            libraryFiles = files.filter(f => f.name.startsWith('lib_') && f.name.endsWith('.json'));
+            libraryFiles = files.filter(f => f.name.startsWith('library') && f.name.endsWith('.json'));
             const simpleFile = files.find(f => f.name === 'simple.json');
             const complexFile = files.find(f => f.name === 'complex.json');
 
