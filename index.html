@@ -41,7 +41,7 @@
 
     <header class="bg-white border-b px-8 py-4 flex items-center justify-between shadow-md z-20">
         <div class="flex items-center gap-6">
-            <div class="bg-slate-900 text-white px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest" id="benchmark-label">---</div>
+            <div class="bg-slate-900 text-white px-3 py-1 rounded-md text-[13px] font-black uppercase tracking-widest" id="benchmark-label">---</div>
             <div class="flex flex-col border-l pl-6 border-slate-200">
                 <span id="lib-filename" class="text-blue-600 font-extrabold text-lg truncate max-w-[250px]">Loading...</span>
                 <div class="flex items-center gap-3">
@@ -69,7 +69,7 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-8 border-b-4 border-slate-100 pb-4">
                 <h2 id="modal-title" class="text-3xl font-black uppercase italic tracking-tighter">Reference View</h2>
-                <button onclick="closeModal()" class="text-slate-300 hover:text-red-500 font-black">ESC TO CLOSE</button>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-red-500 font-black transition-colors text-2xl">[X]</button>
             </div>
             <div id="modal-body" class="grid grid-cols-1 gap-4"></div>
         </div>
@@ -122,16 +122,13 @@
             const folder = benchmarkFolders[folderIndex];
             document.getElementById('benchmark-label').innerText = folder.toUpperCase();
             
-            // 1. Fetch folder contents
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${BASE_PATH}/${folder}`);
             const files = await res.json();
             
-            // 2. Filter: Library files for evaluation VS reference data
-            libraryFiles = files.filter(f => f.name.startsWith('library') && f.name.endsWith('.json'));
+            libraryFiles = files.filter(f => f.name.startsWith('lib_') && f.name.endsWith('.json'));
             const simpleFile = files.find(f => f.name === 'simple.json');
             const complexFile = files.find(f => f.name === 'complex.json');
 
-            // 3. Update dynamic reference tasks for this specific benchmark
             if (simpleFile) currentSimpleData = await (await fetch(simpleFile.download_url)).json();
             if (complexFile) currentComplexData = await (await fetch(complexFile.download_url)).json();
 
@@ -231,7 +228,7 @@
 
         function openDataModal(type) {
             const data = type === 'complex' ? currentComplexData : currentSimpleData;
-            document.getElementById('modal-title').innerText = `${type.toUpperCase()} TASK REFERENCE (${benchmarkFolders[folderIndex]})`;
+            document.getElementById('modal-title').innerText = `${type.toUpperCase()} REFERENCE VIEW`;
             document.getElementById('modal-body').innerHTML = data.map((line, i) => `
                 <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-4 shadow-sm">
                     <span class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black flex-shrink-0">${i+1}</span>
