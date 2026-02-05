@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iterative Benchmark Eval</title>
+    <title>Dynamic Benchmark Evaluator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .task-card { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; transition: all 0.2s; }
+        .task-card { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
         .pre-tag { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .post-tag { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .param-tag { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .active-choice { background-color: #2563eb !important; color: white !important; border-color: #1e40af !important; }
         .num-input { font-size: 1.25rem; font-weight: 700; text-align: center; }
         
-        /* Modal Style */
-        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 24px; width: 60%; max-height: 80vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); }
+        .modal-content { background: white; margin: 2% auto; padding: 40px; border-radius: 24px; width: 80%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
         
         .tooltip-container { position: relative; display: inline-flex; align-items: center; }
         .tooltip-text {
@@ -30,14 +29,13 @@
 
     <div id="loader-screen" class="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center p-10 text-center">
         <div id="loader-content">
-            <h1 class="text-4xl font-black text-white mb-4 uppercase tracking-tighter italic">Initializing Evaluator</h1>
-            <p class="text-slate-400 font-bold mb-8">Fetching benchmark subfolders...</p>
+            <h1 class="text-4xl font-black text-white mb-4 uppercase italic">Initializing Benchmarks</h1>
             <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
         </div>
         <div id="benchmark-transition" class="hidden">
-            <h2 class="text-3xl font-black text-white mb-2 uppercase italic" id="trans-title">Benchmark Complete!</h2>
-            <p class="text-slate-400 mb-10" id="trans-msg">Preparing next set of libraries...</p>
-            <button onclick="proceedToNextBenchmark()" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-xl hover:bg-blue-500 transition-all shadow-2xl">START NEXT BENCHMARK</button>
+            <h2 class="text-3xl font-black text-white mb-2 uppercase italic" id="trans-title">Benchmark Complete</h2>
+            <p class="text-slate-400 mb-10" id="trans-msg">Updating Task References...</p>
+            <button onclick="proceedToNextBenchmark()" class="bg-blue-600 text-white px-10 py-4 rounded-2xl font-black text-xl hover:bg-blue-500 shadow-2xl">START NEXT BENCHMARK</button>
         </div>
     </div>
 
@@ -45,22 +43,22 @@
         <div class="flex items-center gap-6">
             <div class="bg-slate-900 text-white px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest" id="benchmark-label">---</div>
             <div class="flex flex-col border-l pl-6 border-slate-200">
-                <span id="lib-filename" class="text-blue-600 font-extrabold text-lg truncate max-w-[250px]">Loading File...</span>
+                <span id="lib-filename" class="text-blue-600 font-extrabold text-lg truncate max-w-[250px]">Loading...</span>
                 <div class="flex items-center gap-3">
-                    <div class="w-40 bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div class="w-32 bg-slate-200 h-2 rounded-full overflow-hidden">
                         <div id="progress-bar" class="bg-blue-600 h-full transition-all" style="width: 0%"></div>
                     </div>
-                    <span id="progress-text" class="text-[10px] font-black text-slate-400 uppercase">0 / 0 Files</span>
+                    <span id="progress-text" class="text-[10px] font-black text-slate-400">0 / 0</span>
                 </div>
             </div>
         </div>
 
         <div class="flex gap-4">
-            <button onclick="openDataModal('simple')" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-slate-700 transition-all">SIMPLE TASK DATA</button>
-            <button onclick="openDataModal('complex')" class="bg-blue-800 text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-blue-700 transition-all">COMPLEX TASK DATA</button>
+            <button onclick="openDataModal('simple')" class="bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-black hover:bg-slate-700 uppercase tracking-tight">Show Simple Tasks</button>
+            <button onclick="openDataModal('complex')" class="bg-blue-800 text-white px-5 py-2.5 rounded-xl text-xs font-black hover:bg-blue-700 uppercase tracking-tight">Show Complex Tasks</button>
         </div>
 
-        <button onclick="exportJSON()" class="text-sm font-black bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-emerald-600 transition-all shadow-lg uppercase">Export Results</button>
+        <button onclick="exportJSON()" class="text-sm font-black bg-slate-900 text-white px-6 py-3 rounded-xl hover:bg-emerald-600 transition-all shadow-lg uppercase">Export Final Results</button>
     </header>
 
     <main id="task-container" class="flex-1 overflow-y-auto p-8 scroll-smooth">
@@ -69,11 +67,11 @@
 
     <div id="data-modal" class="modal" onclick="closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6 border-b-4 border-slate-100 pb-2">
-                <h2 id="modal-title" class="text-2xl font-black uppercase italic">Data Viewer</h2>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-red-500 font-black">CLOSE [X]</button>
+            <div class="flex justify-between items-center mb-8 border-b-4 border-slate-100 pb-4">
+                <h2 id="modal-title" class="text-3xl font-black uppercase italic tracking-tighter">Reference View</h2>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-red-500 font-black">ESC TO CLOSE</button>
             </div>
-            <div id="modal-body" class="space-y-3 font-medium text-slate-700 italic"></div>
+            <div id="modal-body" class="grid grid-cols-1 gap-4"></div>
         </div>
     </div>
 
@@ -81,8 +79,8 @@
         <div class="max-w-[1800px] mx-auto flex items-stretch gap-6">
             <div id="questions-row" class="flex-1 grid grid-cols-7 gap-4"></div>
             <div class="flex flex-col gap-2 justify-center border-l pl-6 border-slate-200">
-                <button id="next-btn" onclick="changeLibrary(1)" class="w-40 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl active:scale-95 transition-all">NEXT</button>
-                <button onclick="changeLibrary(-1)" class="w-40 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs uppercase tracking-widest hover:bg-slate-50">Previous</button>
+                <button id="next-btn" onclick="changeLibrary(1)" class="w-48 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl active:scale-95 transition-all">NEXT FILE</button>
+                <button onclick="changeLibrary(-1)" class="w-48 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs uppercase hover:bg-slate-50">Previous File</button>
             </div>
         </div>
     </footer>
@@ -96,10 +94,9 @@
         let folderIndex = 0;
         let libraryFiles = [];
         let fileIndex = 0;
+        let currentComplexData = [];
+        let currentSimpleData = [];
         let evaluations = JSON.parse(localStorage.getItem('eval_data')) || {};
-
-        const complexData = ["Put both the alphabet soup and the tomato sauce in the basket","Put both the cream cheese box and the butter in the basket","Turn on the stove and put the moka pot on it","Put the black bowl in the bottom drawer of the cabinet and close it","Put the white mug on the left plate and put the yellow and white mug on the right plate","Pick up the book and place it in the back compartment of the caddy","Put the white mug on the plate and put the chocolate pudding to the right of the plate","Put both the alphabet soup and the cream cheese box in the basket","Put both moka pots on the stove","Put the yellow and white mug in the microwave and close it"];
-        const simpleData = ["Pick up alphabet soup", "Open basket", "Place tomato sauce", "Turn on stove", "Close microwave", "Open cabinet", "Pick up moka pot", "Place cream cheese", "Open drawer", "Close drawer"];
 
         const metrics = [
             { id: 1, label: "Q1: Validity", type: "number", desc: "How many tasks are from the atomic task library in the ground truth?" },
@@ -116,22 +113,29 @@
                 const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${BASE_PATH}`);
                 const items = await res.json();
                 benchmarkFolders = items.filter(i => i.type === 'dir').map(d => d.name);
-                if (benchmarkFolders.length > 0) {
-                    loadBenchmarkFolder(0);
-                }
-            } catch (err) { alert("Initialization failed. Check Repo/Path."); }
+                if (benchmarkFolders.length > 0) loadBenchmarkFolder(0);
+            } catch (err) { console.error(err); }
         }
 
         async function loadBenchmarkFolder(index) {
             folderIndex = index;
             const folder = benchmarkFolders[folderIndex];
-            document.getElementById('benchmark-label').innerText = folder.replace(/_/g, ' ');
+            document.getElementById('benchmark-label').innerText = folder.toUpperCase();
             
+            // 1. Fetch folder contents
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${BASE_PATH}/${folder}`);
             const files = await res.json();
-            libraryFiles = files.filter(f => f.name.endsWith('.json'));
-            fileIndex = 0;
             
+            // 2. Filter: Library files for evaluation VS reference data
+            libraryFiles = files.filter(f => f.name.startsWith('lib_') && f.name.endsWith('.json'));
+            const simpleFile = files.find(f => f.name === 'simple.json');
+            const complexFile = files.find(f => f.name === 'complex.json');
+
+            // 3. Update dynamic reference tasks for this specific benchmark
+            if (simpleFile) currentSimpleData = await (await fetch(simpleFile.download_url)).json();
+            if (complexFile) currentComplexData = await (await fetch(complexFile.download_url)).json();
+
+            fileIndex = 0;
             document.getElementById('loader-screen').style.display = 'none';
             loadLibrary();
         }
@@ -143,7 +147,7 @@
             const tasks = data.atomic_library || [];
             
             document.getElementById('lib-filename').innerText = file.name;
-            document.getElementById('progress-text').innerText = `${fileIndex + 1} / ${libraryFiles.length} FILES`;
+            document.getElementById('progress-text').innerText = `${fileIndex + 1} / ${libraryFiles.length}`;
             document.getElementById('progress-bar').style.width = `${((fileIndex + 1) / libraryFiles.length) * 100}%`;
 
             document.getElementById('task-grid').innerHTML = tasks.map(t => {
@@ -151,72 +155,69 @@
                 return `
                 <div class="task-card">
                     <div class="text-xl font-black text-blue-800 uppercase border-b-2 border-blue-50 pb-2">${t.id}</div>
-                    <p class="text-md text-slate-600 italic mb-2 leading-relaxed">"${t.description}"</p>
+                    <p class="text-md text-slate-600 italic mb-2 leading-relaxed font-medium">"${t.description}"</p>
                     <div class="flex-1 space-y-4">
-                        <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Parameters</span><div class="flex flex-wrap">${params.length > 0 ? params.map(p => `<span class="param-tag">${p}</span>`).join('') : '<span class="text-xs text-slate-300">None</span>'}</div></div>
+                        <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Parameters</span><div class="flex flex-wrap">${params.length > 0 ? params.map(p => `<span class="param-tag">${p}</span>`).join('') : '<span class="text-xs text-slate-300 italic">None</span>'}</div></div>
                         <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Pre-conditions</span><div class="flex flex-wrap">${t.pre_conditions.map(c => `<span class="pre-tag">${c}</span>`).join('')}</div></div>
                         <div><span class="text-[10px] font-black text-slate-400 block uppercase mb-1">Post-conditions</span><div class="flex flex-wrap">${t.post_conditions.map(c => `<span class="post-tag">${c}</span>`).join('')}</div></div>
                     </div>
                 </div>`;
             }).join('');
 
+            renderQuestions(file.name);
+            document.getElementById('next-btn').innerText = (fileIndex === libraryFiles.length - 1) ? "NEXT BENCHMARK" : "NEXT FILE";
+        }
+
+        function renderQuestions(fileName) {
             const folderName = benchmarkFolders[folderIndex];
-            const saved = (evaluations[folderName] || {})[file.name] || {};
+            const saved = (evaluations[folderName] || {})[fileName] || {};
             
             document.getElementById('questions-row').innerHTML = metrics.map(m => {
                 const val = saved[`Q${m.id}`] || '';
-                const headerHtml = `<div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2">
-                    <label class="text-[12px] font-black text-slate-700 uppercase tracking-widest">${m.label}</label>
+                const header = `<div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2">
+                    <label class="text-[11px] font-black text-slate-700 uppercase">${m.label}</label>
                     <div class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
                         <span class="tooltip-text">${m.desc}</span>
                     </div>
                 </div>`;
 
                 if (m.type === 'number') {
-                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${headerHtml}<div class="p-3 flex items-center gap-2"><input type="number" onchange="saveVal('${file.name}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none"></div></div>`;
+                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${header}<div class="p-3"><input type="number" onchange="saveVal('${fileName}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none"></div></div>`;
                 } else {
-                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${headerHtml}<div class="p-3 flex flex-col gap-1.5">${['Yes', 'Partial', 'No'].map(opt => `<button onclick="saveVal('${file.name}', ${m.id}, '${opt}'); markActive(this)" class="choice-btn w-full py-2 text-xs font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white border-slate-200 shadow-sm'}">${opt.toUpperCase()}</button>`).join('')}</div></div>`;
+                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${header}<div class="p-3 flex flex-col gap-1.5">${['Yes', 'Partial', 'No'].map(opt => `<button onclick="saveVal('${fileName}', ${m.id}, '${opt}'); markActive(this)" class="choice-btn w-full py-2 text-[11px] font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white border-slate-200'}">${opt.toUpperCase()}</button>`).join('')}</div></div>`;
                 }
             }).join('');
-            
-            document.getElementById('next-btn').innerText = (fileIndex === libraryFiles.length - 1) ? "NEXT BENCHMARK" : "NEXT FILE";
         }
 
         function saveVal(fileName, qId, val) {
-            const folderName = benchmarkFolders[folderIndex];
-            if (!evaluations[folderName]) evaluations[folderName] = {};
-            if (!evaluations[folderName][fileName]) evaluations[folderName][fileName] = {};
-            evaluations[folderName][fileName][`Q${qId}`] = val;
+            const folder = benchmarkFolders[folderIndex];
+            if (!evaluations[folder]) evaluations[folder] = {};
+            if (!evaluations[folder][fileName]) evaluations[folder][fileName] = {};
+            evaluations[folder][fileName][`Q${qId}`] = val;
             localStorage.setItem('eval_data', JSON.stringify(evaluations));
         }
 
         function markActive(btn) {
-            const siblings = btn.parentElement.querySelectorAll('.choice-btn');
-            siblings.forEach(s => s.classList.remove('active-choice'));
+            btn.parentElement.querySelectorAll('.choice-btn').forEach(s => s.classList.remove('active-choice'));
             btn.classList.add('active-choice');
         }
 
         function changeLibrary(dir) {
             const nextIdx = fileIndex + dir;
             if (nextIdx >= 0 && nextIdx < libraryFiles.length) {
-                fileIndex = nextIdx;
-                loadLibrary();
+                fileIndex = nextIdx; loadLibrary();
                 document.getElementById('task-container').scrollTop = 0;
-            } else if (nextIdx >= libraryFiles.length) {
-                showTransition();
-            }
+            } else if (nextIdx >= libraryFiles.length) { showTransition(); }
         }
 
         function showTransition() {
-            const folder = benchmarkFolders[folderIndex];
             document.getElementById('loader-screen').style.display = 'flex';
             document.getElementById('loader-content').classList.add('hidden');
             document.getElementById('benchmark-transition').classList.remove('hidden');
-            document.getElementById('trans-title').innerText = `${folder.toUpperCase()} FINISHED!`;
             
             if (folderIndex >= benchmarkFolders.length - 1) {
-                document.getElementById('trans-msg').innerText = "All benchmarks complete! You can export the full results now.";
+                document.getElementById('trans-title').innerText = "ALL BENCHMARKS DONE";
                 document.getElementById('benchmark-transition').querySelector('button').innerText = "EXPORT ALL RESULTS";
                 document.getElementById('benchmark-transition').querySelector('button').onclick = exportJSON;
             }
@@ -229,17 +230,21 @@
         }
 
         function openDataModal(type) {
-            const data = type === 'complex' ? complexData : simpleData;
-            document.getElementById('modal-title').innerText = `${type.toUpperCase()} TASK REFERENCE`;
-            document.getElementById('modal-body').innerHTML = data.map((line, i) => `<div class="p-3 bg-slate-50 rounded-lg"><span class="font-black text-blue-500 mr-2">${i+1}.</span> ${line}</div>`).join('');
+            const data = type === 'complex' ? currentComplexData : currentSimpleData;
+            document.getElementById('modal-title').innerText = `${type.toUpperCase()} TASK REFERENCE (${benchmarkFolders[folderIndex]})`;
+            document.getElementById('modal-body').innerHTML = data.map((line, i) => `
+                <div class="p-5 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-4 shadow-sm">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black flex-shrink-0">${i+1}</span>
+                    <p class="text-lg font-medium leading-relaxed italic text-slate-700">"${line}"</p>
+                </div>
+            `).join('');
             document.getElementById('data-modal').style.display = 'block';
         }
-        function closeModal() { document.getElementById('data-modal').style.display = 'none'; }
 
+        function closeModal() { document.getElementById('data-modal').style.display = 'none'; }
         function exportJSON() {
             const blob = new Blob([JSON.stringify(evaluations, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = `eval_results_complete.json`; a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `final_evaluation.json`; a.click();
         }
 
         init();
