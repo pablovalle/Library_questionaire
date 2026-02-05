@@ -160,12 +160,13 @@
                     </div>
                 </div>`;
             }).join('');
-
-            renderQuestions(file.name);
+            const taskCount = tasks.length; // Get the count of atomic tasks
+            // ... (rest of task grid rendering)
+            renderQuestions(file.name, taskCount);
             document.getElementById('next-btn').innerText = (fileIndex === libraryFiles.length - 1) ? "NEXT BENCHMARK" : "NEXT FILE";
         }
 
-        function renderQuestions(fileName) {
+        function renderQuestions(fileName, taskCount) {
             const folderName = benchmarkFolders[folderIndex];
             const saved = (evaluations[folderName] || {})[fileName] || {};
             
@@ -180,13 +181,27 @@
                 </div>`;
 
                 if (m.type === 'number') {
-                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${header}<div class="p-3"><input type="number" onchange="saveVal('${fileName}', ${m.id}, this.value)" value="${val}" class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none"></div></div>`;
+                    // Check if it's Q1 (id: 1) or Q5 (id: 5) to add the total count display
+                    const showTotal = (m.id === 1 || m.id === 5);
+                    const totalDisplay = showTotal ? `<span class="text-xs font-black text-slate-400">/ ${taskCount}</span>` : '';
+                    
+                    return `
+                    <div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">
+                        ${header}
+                        <div class="p-3 flex items-center gap-2">
+                            <input type="number" min="0" max="${taskCount}" 
+                                onchange="saveVal('${fileName}', ${m.id}, this.value)" 
+                                value="${val}" 
+                                class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none">
+                            ${totalDisplay}
+                        </div>
+                    </div>`;
                 } else {
+                    // ... (choice button logic remains the same)
                     return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${header}<div class="p-3 flex flex-col gap-1.5">${['Yes', 'Partial', 'No'].map(opt => `<button onclick="saveVal('${fileName}', ${m.id}, '${opt}'); markActive(this)" class="choice-btn w-full py-2 text-[11px] font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white border-slate-200'}">${opt.toUpperCase()}</button>`).join('')}</div></div>`;
                 }
             }).join('');
         }
-
         function saveVal(fileName, qId, val) {
             const folder = benchmarkFolders[folderIndex];
             if (!evaluations[folder]) evaluations[folder] = {};
