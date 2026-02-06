@@ -10,17 +10,16 @@
         .pre-tag { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .post-tag { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
         .param-tag { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; font-size: 0.8rem; padding: 4px 8px; border-radius: 6px; margin: 2px; display: inline-block; font-weight: 600; }
-        .active-choice { background-color: #2563eb !important; color: white !important; border-color: #1e40af !important; }
-        .num-input { font-size: 1.25rem; font-weight: 700; text-align: center; }
+        .num-input { font-size: 1.1rem; font-weight: 700; text-align: center; }
         
         .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); }
         .modal-content { background: white; margin: 2% auto; padding: 40px; border-radius: 24px; width: 80%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
         
         .tooltip-container { position: relative; display: inline-flex; align-items: center; }
         .tooltip-text {
-            visibility: hidden; width: 280px; background-color: #0f172a; color: #fff; text-align: left; border-radius: 8px; padding: 12px;
+            visibility: hidden; width: 220px; background-color: #0f172a; color: #fff; text-align: left; border-radius: 8px; padding: 12px;
             position: absolute; z-index: 1000; bottom: 150%; left: 50%; transform: translateX(-50%);
-            opacity: 0; transition: opacity 0.2s; font-size: 0.8rem; pointer-events: none; border: 1px solid #334155;
+            opacity: 0; transition: opacity 0.2s; font-size: 0.75rem; pointer-events: none; border: 1px solid #334155;
         }
         .tooltip-container:hover .tooltip-text { visibility: visible; opacity: 1; }
     </style>
@@ -76,11 +75,11 @@
     </div>
 
     <footer class="bg-white border-t p-6 shadow-[0_-10px_25px_rgba(0,0,0,0.1)] z-30">
-        <div class="max-w-[1800px] mx-auto flex items-stretch gap-6">
-            <div id="questions-row" class="flex-1 grid grid-cols-7 gap-4"></div>
+        <div class="max-w-[1900px] mx-auto flex items-stretch gap-6">
+            <div id="questions-row" class="flex-1 grid grid-cols-8 gap-3"></div>
             <div class="flex flex-col gap-2 justify-center border-l pl-6 border-slate-200">
-                <button id="next-btn" onclick="changeLibrary(1)" class="w-48 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl active:scale-95 transition-all">NEXT FILE</button>
-                <button onclick="changeLibrary(-1)" class="w-48 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs uppercase hover:bg-slate-50">Previous File</button>
+                <button id="next-btn" onclick="changeLibrary(1)" class="w-40 py-4 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 text-lg shadow-xl active:scale-95 transition-all">NEXT FILE</button>
+                <button onclick="changeLibrary(-1)" class="w-40 py-2 border-2 border-slate-200 rounded-xl font-bold text-slate-400 text-xs uppercase hover:bg-slate-50">Previous</button>
             </div>
         </div>
     </footer>
@@ -99,13 +98,14 @@
         let evaluations = JSON.parse(localStorage.getItem('eval_data')) || {};
 
         const metrics = [
-            { id: 1, label: "Q1: Validity", type: "number", desc: "How many tasks are from the atomic task library in the ground truth?" },
-            { id: 2, label: "Q2: Coverage", type: "choice", desc: "Are the generated tasks enough to compose the complex tasks?" },
-            { id: 3, label: "Q3: Atomicity", type: "choice", desc: "Are the generated tasks atomic tasks?" },
-            { id: 4, label: "Q4: General", type: "choice", desc: "Are all the provided tasks generic and do not rely on specific objects?" },
-            { id: 5, label: "Q5: Redundancy", type: "number", desc: "Out of the tasks provided, how many tasks are repeated or equivalent?" },
-            { id: 6, label: "Q6: Causality", type: "choice", desc: "Are the given preconditions and post-conditions meaningful and respect the laws of physics?" },
-            { id: 7, label: "Q7: Utility", type: "choice", desc: "Is the task parameterization accurate enough for a low-level controller?" }
+            { id: 1, label: "Q1: Validity", desc: "How many tasks are from the atomic task library in the ground truth?" },
+            { id: 2, label: "Q2: Coverage", desc: "With current library, how many complex task can we compose?" },
+            { id: 3, label: "Q3: Redundancy", desc: "How many task are not needed to compose the complex tasks?" },
+            { id: 4, label: "Q4: Equivalence", desc: "How many tasks are repeated or equivalent?" },
+            { id: 5, label: "Q5: Atomicity", desc: "How many of the generated tasks are atomic tasks?" },
+            { id: 6, label: "Q6: General", desc: "How many tasks are generic and do not rely on specific objects?" },
+            { id: 7, label: "Q7: Causality", desc: "How many tasks have correct pre- and post-conditions?" },
+            { id: 8, label: "Q8: Utility", desc: "How many tasks include a correct parameterization?" }
         ];
 
         async function init() {
@@ -160,59 +160,51 @@
                     </div>
                 </div>`;
             }).join('');
-            const taskCount = tasks.length; // Get the count of atomic tasks
-            // ... (rest of task grid rendering)
-            renderQuestions(file.name, taskCount);
+
+            renderQuestions(file.name, tasks.length, currentComplexData.length);
             document.getElementById('next-btn').innerText = (fileIndex === libraryFiles.length - 1) ? "NEXT BENCHMARK" : "NEXT FILE";
         }
 
-        function renderQuestions(fileName, taskCount) {
+        function renderQuestions(fileName, libraryCount, complexCount) {
             const folderName = benchmarkFolders[folderIndex];
             const saved = (evaluations[folderName] || {})[fileName] || {};
             
             document.getElementById('questions-row').innerHTML = metrics.map(m => {
                 const val = saved[`Q${m.id}`] || '';
-                const header = `<div class="bg-slate-200/50 py-2 border-b border-slate-100 flex items-center justify-center gap-2">
-                    <label class="text-[11px] font-black text-slate-700 uppercase">${m.label}</label>
+                
+                // Logic to select the correct denominator
+                // Q2: Coverage uses Complex Task count. Others use current Library count.
+                const totalCount = (m.id === 2) ? complexCount : libraryCount;
+
+                const header = `
+                <div class="bg-slate-200/50 py-1.5 border-b border-slate-100 flex items-center justify-center gap-1.5">
+                    <label class="text-[10px] font-black text-slate-700 uppercase">${m.label}</label>
                     <div class="tooltip-container">
-                        <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
+                        <svg class="w-3.5 h-3.5 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"/></svg>
                         <span class="tooltip-text">${m.desc}</span>
                     </div>
                 </div>`;
 
-                if (m.type === 'number') {
-                    // Check if it's Q1 (id: 1) or Q5 (id: 5) to add the total count display
-                    const showTotal = (m.id === 1 || m.id === 5);
-                    const totalDisplay = showTotal ? `<span class="text-xs font-black text-slate-400">/ ${taskCount}</span>` : '';
-                    
-                    return `
-                    <div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">
-                        ${header}
-                        <div class="p-3 flex items-center gap-2">
-                            <input type="number" min="0" max="${taskCount}" 
-                                onchange="saveVal('${fileName}', ${m.id}, this.value)" 
-                                value="${val}" 
-                                class="num-input w-full bg-white border-2 border-slate-200 rounded-xl py-2 outline-none">
-                            ${totalDisplay}
-                        </div>
-                    </div>`;
-                } else {
-                    // ... (choice button logic remains the same)
-                    return `<div class="flex flex-col bg-slate-50 rounded-2xl border-2 border-slate-100">${header}<div class="p-3 flex flex-col gap-1.5">${['Yes', 'Partial', 'No'].map(opt => `<button onclick="saveVal('${fileName}', ${m.id}, '${opt}'); markActive(this)" class="choice-btn w-full py-2 text-[11px] font-black border-2 rounded-xl transition-all ${val === opt ? 'active-choice' : 'bg-white border-slate-200'}">${opt.toUpperCase()}</button>`).join('')}</div></div>`;
-                }
+                return `
+                <div class="flex flex-col bg-slate-50 rounded-xl border-2 border-slate-100">
+                    ${header}
+                    <div class="p-2 flex items-center gap-1.5">
+                        <input type="number" min="0" max="${totalCount}" 
+                            onchange="saveVal('${fileName}', ${m.id}, this.value)" 
+                            value="${val}" 
+                            class="num-input w-full bg-white border-2 border-slate-200 rounded-lg py-1.5 outline-none focus:border-blue-400">
+                        <span class="text-[10px] font-black text-slate-400">/ ${totalCount}</span>
+                    </div>
+                </div>`;
             }).join('');
         }
+
         function saveVal(fileName, qId, val) {
             const folder = benchmarkFolders[folderIndex];
             if (!evaluations[folder]) evaluations[folder] = {};
             if (!evaluations[folder][fileName]) evaluations[folder][fileName] = {};
             evaluations[folder][fileName][`Q${qId}`] = val;
             localStorage.setItem('eval_data', JSON.stringify(evaluations));
-        }
-
-        function markActive(btn) {
-            btn.parentElement.querySelectorAll('.choice-btn').forEach(s => s.classList.remove('active-choice'));
-            btn.classList.add('active-choice');
         }
 
         function changeLibrary(dir) {
@@ -254,6 +246,7 @@
         }
 
         function closeModal() { document.getElementById('data-modal').style.display = 'none'; }
+        
         function exportJSON() {
             const blob = new Blob([JSON.stringify(evaluations, null, 2)], { type: "application/json" });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `final_evaluation.json`; a.click();
