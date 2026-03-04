@@ -1,0 +1,98 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not grasped"
+            ],
+            "post_conditions": [
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object. Orientation can be specified as an optional parameter (e.g., \"upside down\").",
+            "parameters": [
+                "obj_id",
+                "target_id",
+                "orientation"
+            ],
+            "pre_conditions": [
+                "target_id is accessible"
+            ],
+            "post_conditions": [
+                "[obj_id] is supported by [target_id] with specified orientation"
+            ]
+        },
+        {
+            "id": "turn_on",
+            "description": "Activate a device or appliance (e.g., light, water, stove).",
+            "parameters": [
+                "device_id"
+            ],
+            "pre_conditions": [
+                "device_id is in state: off"
+            ],
+            "post_conditions": [
+                "device_id is in state: on"
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply force to move an object in a specific direction.",
+            "parameters": [
+                "obj_id",
+                "direction"
+            ],
+            "pre_conditions": [
+                "obj_id is stationary"
+            ],
+            "post_conditions": [
+                "obj_id is moved in [direction]"
+            ]
+        },
+        {
+            "id": "dry",
+            "description": "Remove moisture from an object using a drying method (e.g., air-drying, towel-drying).",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is wet"
+            ],
+            "post_conditions": [
+                "[obj_id] is dry"
+            ]
+        }
+    ]
+}

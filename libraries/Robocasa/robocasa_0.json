@@ -1,0 +1,125 @@
+{
+    "atomic_library": [
+        {
+            "id": "open",
+            "description": "Actuate a mechanism to open it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "[joint_id] is in state: closed"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: open"
+            ]
+        },
+        {
+            "id": "close",
+            "description": "Actuate a mechanism to close it (door, cabinet, drawer, appliance door).",
+            "parameters": [
+                "joint_id"
+            ],
+            "pre_conditions": [
+                "[joint_id] is in state: open"
+            ],
+            "post_conditions": [
+                "[joint_id] is in state: closed"
+            ]
+        },
+        {
+            "id": "pick_up",
+            "description": "Approach, grasp, and lift an object.",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "[obj_id] is at rest and not grasped"
+            ],
+            "post_conditions": [
+                "[obj_id] is lifted from support"
+            ]
+        },
+        {
+            "id": "place",
+            "description": "Lower and release a held object onto or into a target location/object. Supports optional orientation parameter for specific placement requirements.",
+            "parameters": [
+                "obj_id",
+                "target_id",
+                "orientation"
+            ],
+            "pre_conditions": [
+                "Object is held in gripper"
+            ],
+            "post_conditions": [
+                "Object is released at target location with specified orientation"
+            ]
+        },
+        {
+            "id": "compare_size",
+            "description": "Compare the size of two objects to determine relative dimensions for stacking or ordering purposes.",
+            "parameters": [
+                "obj_id_1",
+                "obj_id_2"
+            ],
+            "pre_conditions": [
+                "Both objects are within reach and visible to the sensor system."
+            ],
+            "post_conditions": [
+                "Returns a comparison result indicating which object is larger."
+            ]
+        },
+        {
+            "id": "activate_burner",
+            "description": "Turn on a stove burner to heat cooking elements.",
+            "parameters": [
+                "burner_id"
+            ],
+            "pre_conditions": [
+                "Burner is powered and in a ready state."
+            ],
+            "post_conditions": [
+                "Burner is activated and heating."
+            ]
+        },
+        {
+            "id": "activate_microwave",
+            "description": "Turn on a microwave to heat contents inside it.",
+            "parameters": [
+                "microwave_id"
+            ],
+            "pre_conditions": [
+                "Microwave is powered and in a ready state."
+            ],
+            "post_conditions": [
+                "Microwave is activated and heating."
+            ]
+        },
+        {
+            "id": "activate_water_faucet",
+            "description": "Turn on a water faucet to dispense water into a sink or container.",
+            "parameters": [
+                "faucet_id"
+            ],
+            "pre_conditions": [
+                "Faucet is powered and in a ready state."
+            ],
+            "post_conditions": [
+                "Water is flowing from the faucet."
+            ]
+        },
+        {
+            "id": "push",
+            "description": "Apply force to move an object or part of an object in a specific direction without lifting it.",
+            "parameters": [
+                "obj_id",
+                "direction"
+            ],
+            "pre_conditions": [
+                "Object is stationary and within reach."
+            ],
+            "post_conditions": [
+                "Object is moved in the specified direction."
+            ]
+        }
+    ]
+}

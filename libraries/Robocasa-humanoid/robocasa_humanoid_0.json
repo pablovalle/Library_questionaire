@@ -1,0 +1,127 @@
+{
+    "atomic_library": [
+        {
+            "id": "approach_object",
+            "description": "Move the robot's end-effector to the object's location for interaction",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "Object is within the robot's operational space",
+                "End-effector is unobstructed"
+            ],
+            "post_conditions": [
+                "End-effector is positioned near the object",
+                "Object is within reach"
+            ]
+        },
+        {
+            "id": "grasp_object",
+            "description": "Close the robot's gripper to securely hold the object",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "Object is within the gripper's graspable range",
+                "End-effector is properly aligned with the object"
+            ],
+            "post_conditions": [
+                "Object is securely held by the gripper",
+                "Object is lifted off its initial surface"
+            ]
+        },
+        {
+            "id": "lift_object",
+            "description": "Raise the object vertically to clear its initial position",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "Object is securely held by the gripper",
+                "Vertical clearance is sufficient"
+            ],
+            "post_conditions": [
+                "Object is lifted to a safe height",
+                "Object is ready for transport"
+            ]
+        },
+        {
+            "id": "lower_object",
+            "description": "Move the object downward to the target location",
+            "parameters": [
+                "obj_id",
+                "target_id"
+            ],
+            "pre_conditions": [
+                "Object is held by the gripper",
+                "Target location is accessible and clear"
+            ],
+            "post_conditions": [
+                "Object is positioned over the target location",
+                "Object is ready to be released"
+            ]
+        },
+        {
+            "id": "release_object",
+            "description": "Open the gripper to release the object at the target location",
+            "parameters": [
+                "obj_id"
+            ],
+            "pre_conditions": [
+                "Object is held by the gripper",
+                "Target location is stable and clear"
+            ],
+            "post_conditions": [
+                "Object is released and supported by the target location",
+                "Gripper is open and no longer holding the object"
+            ]
+        },
+        {
+            "id": "open_container",
+            "description": "Actuate the mechanism to open a container or appliance door",
+            "parameters": [
+                "container_id"
+            ],
+            "pre_conditions": [
+                "Container is closed and latched",
+                "End-effector is positioned to interact with the container's opening mechanism"
+            ],
+            "post_conditions": [
+                "Container door is fully open",
+                "Latching mechanism is disengaged"
+            ]
+        },
+        {
+            "id": "close_container",
+            "description": "Actuate the mechanism to close a container or appliance door",
+            "parameters": [
+                "container_id"
+            ],
+            "pre_conditions": [
+                "Container door is open",
+                "End-effector is positioned to interact with the container's closing mechanism"
+            ],
+            "post_conditions": [
+                "Container door is fully closed",
+                "Latching mechanism is engaged"
+            ]
+        },
+        {
+            "id": "move",
+            "description": "Transport an object from one location to another while maintaining a secure grip",
+            "parameters": [
+                "obj_id",
+                "source_location",
+                "target_location"
+            ],
+            "pre_conditions": [
+                "Object is securely held by the end-effector",
+                "Path between source and target locations is clear"
+            ],
+            "post_conditions": [
+                "Object is positioned over the target location",
+                "Object is ready to be placed"
+            ]
+        }
+    ]
+}
